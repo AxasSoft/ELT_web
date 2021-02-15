@@ -1,0 +1,7 @@
+{
+  "name": "EltClientApp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue"
+}
