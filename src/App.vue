@@ -1,248 +1,229 @@
 <template>
   <IonApp>
-    <IonSplitPane content-id="main-content">
-      <ion-menu content-id="main-content" type="overlay">
-        <ion-content>
+    <IonSplitPane  when="(min-width: 920px)" content-id="main-content">
+      <ion-menu  :class="{noDisplay: isLoginPage}"  content-id="main-content" type="overlay">
+        <ion-content >
           <ion-list id="inbox-list">
-            <ion-list-header>Inbox</ion-list-header>
-            <ion-note>hi@ionicframework.com</ion-note>
-  
+            <ion-list-header>
+              ELT Bot
+              <ion-button @click="changeLocale">
+                {{currentLocale}}
+              </ion-button>
+            </ion-list-header>
+            <ion-buttons>{{user?user.name:''}}
+
+              <ion-button href="/login">{{dict[currentLocale]['logout']}}</ion-button>
+            </ion-buttons>
+
+
             <ion-menu-toggle auto-hide="false" v-for="(p, i) in appPages" :key="i">
-              <ion-item @click="selectedIndex = i" router-direction="root" :router-link="p.url" lines="none" detail="false" class="hydrated" :class="{ selected: selectedIndex === i }">
+              <ion-item v-if="!p.forOnlyAdmin || (user !== null && user.is_admin)" @click="selectedIndex = i" router-direction="root" :router-link="p.url" lines="none" detail="false" class="hydrated" :class="{ selected: selectedIndex === i }">
                 <ion-icon slot="start" :ios="p.iosIcon" :md="p.mdIcon"></ion-icon>
-                <ion-label>{{ p.title }}</ion-label>
+                <ion-label>{{ dict[currentLocale][p.title] }}</ion-label>
               </ion-item>
             </ion-menu-toggle>
           </ion-list>
-  
-          <ion-list id="labels-list">
-            <ion-list-header>Labels</ion-list-header>
-  
-            <ion-item v-for="(label, index) in labels" lines="none" :key="index">
-              <ion-icon slot="start" :ios="bookmarkOutline" :md="bookmarkSharp"></ion-icon>
-              <ion-label>{{ label }}</ion-label>
-            </ion-item>
-          </ion-list>
+          <ion-buttons>
+
+          </ion-buttons>
         </ion-content>
+
       </ion-menu>
-      <ion-router-outlet id="main-content"></ion-router-outlet>
+
+      <ion-router-outlet ref="routerview" id="main-content"></ion-router-outlet>
     </IonSplitPane>
   </IonApp>
 </template>
 
-<script lang="ts">
-import { IonApp, IonContent, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonMenu, IonMenuToggle, IonNote, IonRouterOutlet, IonSplitPane } from '@ionic/vue';
+<script>
+import { IonApp, IonContent, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonMenu, IonMenuToggle, IonRouterOutlet, IonSplitPane, toastController } from '@ionic/vue';
 import { defineComponent, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { archiveOutline, archiveSharp, bookmarkOutline, bookmarkSharp, heartOutline, heartSharp, mailOutline, mailSharp, paperPlaneOutline, paperPlaneSharp, trashOutline, trashSharp, warningOutline, warningSharp } from 'ionicons/icons';
+import {bookmarkOutline, bookmarkSharp, heartOutline, heartSharp, peopleOutline, peopleSharp, warningOutline, warningSharp, serverOutline, serverSharp, checkboxOutline, checkboxSharp, callOutline, callSharp } from 'ionicons/icons';
+import axios from 'axios';
+import router from "@/router";
+import {dict} from '@/./dict.js'
+import { addIcons } from "ionicons";
+import { arrowForwardOutline, arrowBackOutline } from "ionicons/icons";
+
+addIcons({
+  "arrow-forward-outline": arrowForwardOutline,
+  "arrow-back-outline": arrowBackOutline,
+});
+
+//axios.defaults.baseURL = 'http://localhost:5000/cp/';
+axios.defaults.baseURL = 'http://188.166.238.36:5000/cp/';
+axios.interceptors.response.use(
+    function (response) {
+      return response;
+    },
+    function (error) {
+      if (
+          error &&
+          error.response &&
+          error.response.status &&
+          error.response.status === 401
+      ) {
+        router.push('/login')
+
+      } else if (
+          error &&
+          error.response &&
+          error.response.status &&
+          error.response.status === 404
+      ) {
+        router.replace('/404')
+
+      }
+      else {
+        return Promise.reject(error)
+      }
+
+    }
+);
+
 
 export default defineComponent({
   name: 'App',
   components: {
-    IonApp, 
-    IonContent, 
-    IonIcon, 
-    IonItem, 
-    IonLabel, 
-    IonList, 
-    IonListHeader, 
-    IonMenu, 
-    IonMenuToggle, 
-    IonNote, 
-    IonRouterOutlet, 
+    IonApp,
+    IonContent,
+    IonIcon,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonListHeader,
+    IonMenu,
+    IonMenuToggle,
+    IonRouterOutlet,
     IonSplitPane,
   },
   setup() {
     const selectedIndex = ref(0);
+
     const appPages = [
       {
-        title: 'Inbox',
-        url: '/folder/Inbox',
-        iosIcon: mailOutline,
-        mdIcon: mailSharp
+        section: 'u',
+        title: 'users_mi',
+        url: '/u/users',
+        iosIcon: peopleOutline,
+        mdIcon: peopleSharp,
+        forOnlyAdmin: true
       },
       {
-        title: 'Outbox',
-        url: '/folder/Outbox',
-        iosIcon: paperPlaneOutline,
-        mdIcon: paperPlaneSharp
+        section: 'k',
+        title: 'kb_mi',
+        url: '/k/kb',
+        iosIcon: serverOutline,
+        mdIcon: serverSharp,
+        forOnlyAdmin: true
       },
       {
-        title: 'Favorites',
-        url: '/folder/Favorites',
-        iosIcon: heartOutline,
-        mdIcon: heartSharp
+        section: 't',
+        title: 'tests_mi',
+        url: '/t/categories',
+        iosIcon: checkboxOutline,
+        mdIcon: checkboxSharp,
+        forOnlyAdmin: false
       },
       {
-        title: 'Archived',
-        url: '/folder/Archived',
-        iosIcon: archiveOutline,
-        mdIcon: archiveSharp
-      },
-      {
-        title: 'Trash',
-        url: '/folder/Trash',
-        iosIcon: trashOutline,
-        mdIcon: trashSharp
-      },
-      {
-        title: 'Spam',
-        url: '/folder/Spam',
-        iosIcon: warningOutline,
-        mdIcon: warningSharp
+        section: 'c',
+        title: 'contacts_mi',
+        url: '/c/contacts',
+        iosIcon: callOutline,
+        mdIcon: callSharp,
+        forOnlyAdmin: true
       }
     ];
-    const labels = ['Family', 'Friends', 'Notes', 'Work', 'Travel', 'Reminders'];
-    
-    const path = window.location.pathname.split('folder/')[1];
+
+    const path = window.location.pathname;
     if (path !== undefined) {
-      selectedIndex.value = appPages.findIndex(page => page.title.toLowerCase() === path.toLowerCase());
+      selectedIndex.value = appPages.findIndex(page => path.toLowerCase().startsWith('/'+page.section.toLowerCase()+'/'));
     }
-    
+
     const route = useRoute();
-    
-    return { 
+
+    return {
       selectedIndex,
-      appPages, 
-      labels,
-      archiveOutline, 
-      archiveSharp, 
-      bookmarkOutline, 
-      bookmarkSharp, 
-      heartOutline, 
-      heartSharp, 
-      mailOutline, 
-      mailSharp, 
-      paperPlaneOutline, 
-      paperPlaneSharp, 
-      trashOutline, 
-      trashSharp, 
-      warningOutline, 
+      appPages,
+      dict,
+      bookmarkOutline,
+      bookmarkSharp,
+      heartOutline,
+      heartSharp,
+      peopleOutline,
+      peopleSharp,
+      checkboxOutline,
+      checkboxSharp,
+      warningOutline,
       warningSharp,
-      isSelected: (url: string) => url === route.path ? 'selected' : ''
+      serverSharp,
+      serverOutline,
+      isSelected: (url) => url === route.path ? 'selected' : ''
     }
-  }
+  },
+  data(){
+    return {
+      user: null,
+      currentLocale: 'en'
+    }
+  },
+  mounted() {
+    this.currentLocale = localStorage.getItem('locale') || 'en'
+
+    const token = localStorage.getItem('token') || '';
+    if(token === ''){
+      router.push('/login')
+    }
+    axios(
+        {
+          method: "GET",
+          url: 'users/self/',
+          headers: {
+            "Authorization": 'Token '+token
+          }
+        }
+    ).then(
+        response => {
+          this.user = response.data.data
+        }
+    ).catch(
+        (error) => {
+          router.push('/login')
+        }
+    )
+  },
+  computed:{
+    isLoginPage(){
+      return this.$route.name === 'Login'
+    }
+  },
+  methods:{
+    async notify(message,color="dark"){
+      const toast = await toastController
+          .create({
+            message: message,
+            duration: 2000,
+            color
+          })
+      return toast.present();
+    },
+    changeLocale(){
+      if(this.currentLocale === 'en'){
+        this.currentLocale = 'ru';
+      }
+      else if(this.currentLocale === 'ru'){
+        this.currentLocale = 'en';
+      }
+      else {
+        this.currentLocale = 'en'
+      }
+      localStorage.setItem('locale', this.currentLocale)
+      this.$forceUpdate();
+    }
+  },
 });
 </script>
 
 <style scoped>
-ion-menu ion-content {
-  --background: var(--ion-item-background, var(--ion-background-color, #fff));
-}
-
-ion-menu.md ion-content {
-  --padding-start: 8px;
-  --padding-end: 8px;
-  --padding-top: 20px;
-  --padding-bottom: 20px;
-}
-
-ion-menu.md ion-list {
-  padding: 20px 0;
-}
-
-ion-menu.md ion-note {
-  margin-bottom: 30px;
-}
-
-ion-menu.md ion-list-header,
-ion-menu.md ion-note {
-  padding-left: 10px;
-}
-
-ion-menu.md ion-list#inbox-list {
-  border-bottom: 1px solid var(--ion-color-step-150, #d7d8da);
-}
-
-ion-menu.md ion-list#inbox-list ion-list-header {
-  font-size: 22px;
-  font-weight: 600;
-
-  min-height: 20px;
-}
-
-ion-menu.md ion-list#labels-list ion-list-header {
-  font-size: 16px;
-
-  margin-bottom: 18px;
-
-  color: #757575;
-
-  min-height: 26px;
-}
-
-ion-menu.md ion-item {
-  --padding-start: 10px;
-  --padding-end: 10px;
-  border-radius: 4px;
-}
-
-ion-menu.md ion-item.selected {
-  --background: rgba(var(--ion-color-primary-rgb), 0.14);
-}
-
-ion-menu.md ion-item.selected ion-icon {
-  color: var(--ion-color-primary);
-}
-
-ion-menu.md ion-item ion-icon {
-  color: #616e7e;
-}
-
-ion-menu.md ion-item ion-label {
-  font-weight: 500;
-}
-
-ion-menu.ios ion-content {
-  --padding-bottom: 20px;
-}
-
-ion-menu.ios ion-list {
-  padding: 20px 0 0 0;
-}
-
-ion-menu.ios ion-note {
-  line-height: 24px;
-  margin-bottom: 20px;
-}
-
-ion-menu.ios ion-item {
-  --padding-start: 16px;
-  --padding-end: 16px;
-  --min-height: 50px;
-}
-
-ion-menu.ios ion-item.selected ion-icon {
-  color: var(--ion-color-primary);
-}
-
-ion-menu.ios ion-item ion-icon {
-  font-size: 24px;
-  color: #73849a;
-}
-
-ion-menu.ios ion-list#labels-list ion-list-header {
-  margin-bottom: 8px;
-}
-
-ion-menu.ios ion-list-header,
-ion-menu.ios ion-note {
-  padding-left: 16px;
-  padding-right: 16px;
-}
-
-ion-menu.ios ion-note {
-  margin-bottom: 8px;
-}
-
-ion-note {
-  display: inline-block;
-  font-size: 16px;
-
-  color: var(--ion-color-medium-shade);
-}
-
-ion-item.selected {
-  --color: var(--ion-color-primary);
-}
 </style>
