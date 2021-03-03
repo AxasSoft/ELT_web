@@ -92,11 +92,11 @@ export default defineComponent({
         alert(this.$root.dict[this.$root.currentLocale]['enter_correct_answer'])
         return
       }
-
+      /*
       if((this.question === null || this.affectedQuestion.text !== this.affectedQuestion.text) && this.stopList.includes(this.affectedQuestion.text)){
         alert(this.$root.dict[this.$root.currentLocale]['duplicated_text'])
         return
-      }
+      }*/
 
       const formData = new FormData();
       formData.append('text', this.affectedQuestion.text);
