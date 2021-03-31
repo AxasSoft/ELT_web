@@ -12,6 +12,11 @@
       <ion-label position="stacked">{{$root.dict[$root.currentLocale]['name_lbl']}}</ion-label>
       <ion-input v-model="affectedCategory.name"></ion-input>
     </ion-item>
+    <ion-item>
+
+      <ion-checkbox v-model="affectedCategory.visible"></ion-checkbox>
+      <ion-label style="padding-left: 1.4rem">{{$root.dict[$root.currentLocale]['visible_lbl']}}</ion-label>
+    </ion-item>
     <div><ion-button slot="end" @click="save">{{action}}</ion-button></div>
   </ion-content>
 </template>
@@ -26,7 +31,8 @@ import {
   IonInput,
   IonItem,
   IonLabel,
-  modalController
+  modalController,
+    IonCheckbox
 } from '@ionic/vue';
 import { defineComponent } from 'vue';
 import axios from "axios";
@@ -69,6 +75,7 @@ export default defineComponent({
         },
         data: {
           name: this.affectedCategory.name,
+          visible: this.affectedCategory.visible
         },
       }:{
         method: 'PUT',
@@ -78,6 +85,7 @@ export default defineComponent({
         },
         data: {
           name: this.affectedCategory.name,
+          visible: this.affectedCategory.visible
         }
       }).then(
           (response) => {
@@ -100,7 +108,7 @@ export default defineComponent({
 
     }
   },
-  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel }
+  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel, IonCheckbox}
 });
 </script>
 

@@ -35,15 +35,22 @@
             >
               {{$root.dict[$root.currentLocale]['add_question_btn']}} {{$root.dict[$root.currentLocale]['wal']}}
             </ion-button>
+
           </div>
-          <ion-list>
+          <div class="panel">
+            <ion-button size="small" @click="toggleReorder">
+              {{reorder? $root.dict[$root.currentLocale]['save_order']:$root.dict[$root.currentLocale]['change_order'] }}
+            </ion-button>
+          </div>
+          <ion-reorder-group @ionItemReorder="doReorder($event)" :disabled="!reorder">
             <ion-item v-for="question in questions" :key="question.id">
               <ion-label>{{question.text}}</ion-label>
               <ion-label>{{question.correct_answer !== null?$root.dict[$root.currentLocale]['woa']: $root.dict[$root.currentLocale]['wal']}}</ion-label>
               <ion-button slot="end" @click="edit(question,$root.dict[$root.currentLocale]['question_h'],$root.dict[$root.currentLocale]['save'])">{{$root.dict[$root.currentLocale]['edit']}}</ion-button>
               <ion-button color="danger" slot="end" @click="deleteQuestion(question.id)">{{$root.dict[$root.currentLocale]['delete']}}</ion-button>
+              <ion-reorder slot="end"></ion-reorder>
             </ion-item>
-          </ion-list>
+          </ion-reorder-group>
         </div>
       </div>
     </ion-content>
@@ -59,7 +66,9 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  modalController
+  modalController,
+    IonReorder,
+    IonReorderGroup
 } from '@ionic/vue';
 import axios from "axios";
 import OAQuestionModal from "@/views/OAQuestionModal";
@@ -74,13 +83,16 @@ export default {
     IonMenuButton,
     IonPage,
     IonTitle,
-    IonToolbar
+    IonToolbar,
+    IonReorder,
+    IonReorderGroup
   },
   data(){
     return {
       questions:[
 
-      ]
+      ],
+      reorder: false
     }
   },
   mounted() {
@@ -180,6 +192,42 @@ export default {
             this.$root.notify(this.$root.dict[this.$root.currentLocale]['error_ntf'],'danger')
           }
       )
+    },
+    doReorder(event) {
+      // Before complete is called with the items they will remain in the
+      // order before the drag
+      console.log('Before complete');
+
+      this.questions = event.detail.complete(this.questions);
+
+      // After complete is called the items will be in the new order
+      console.log('After complete');
+    },
+    toggleReorder(){
+      this.reorder = !this.reorder;
+      if(!this.reorder){
+        console.log('Saved');
+        axios({
+              method: 'POST',
+              url: `questions/order/`,
+              headers: {
+                "Authorization": `Token ${localStorage.getItem('token') || ''}`
+              },
+              data: {
+                'order':this.questions.map(value => value.id)
+              }
+            }
+        ).then(
+            () => {
+              this.$root.notify(this.$root.dict[this.$root.currentLocale]['saved_ntf'])
+            }
+        ).catch(
+            error => {
+              console.error(error);
+              this.$root.notify(this.$root.dict[this.$root.currentLocale]['error_ntf'])
+            }
+        )
+      }
     }
   }
 }

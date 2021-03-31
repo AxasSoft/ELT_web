@@ -82,7 +82,10 @@ const dict = {
             'incorrect_password': 'Неверный пароль',
             'detach_file': 'Удалить файл',
             'not_found_h': 'Не найдено',
-            'not_found_t': 'Запрошенная страница не найдена'
+            'not_found_t': 'Запрошенная страница не найдена',
+            'save_order':'Сохранить порядок',
+            'change_order': 'Изменить порядок',
+            'visible_lbl': 'Видимая'
         },
         'en': {
             'change_qs_1_btn': 'for moderation',
@@ -166,7 +169,10 @@ const dict = {
             'incorrect_password': 'Incorrect password',
             'detach_file': 'Delete file',
             'not_found_h': 'Not Found',
-            'not_found_t': 'Page not found'
+            'not_found_t': 'Page not found',
+            'save_order':'Save order',
+            'change_order': 'Change order',
+            'visible_lbl': 'Visible'
         }
     };
 

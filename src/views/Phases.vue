@@ -27,8 +27,11 @@
             >
               {{$root.dict[$root.currentLocale]['add_phase_btn']}}
             </ion-button>
+            <ion-button size="small" @click="toggleReorder">
+              {{reorder? $root.dict[$root.currentLocale]['save_order']:$root.dict[$root.currentLocale]['change_order'] }}
+            </ion-button>
           </div>
-          <ion-list>
+          <ion-reorder-group @ionItemReorder="doReorder($event)" :disabled="!reorder">
             <ion-item v-for="phase in phases" :key="phase.id">
               <ion-label>{{phase.name}}</ion-label>
               <ion-button slot="end" :href="'/k/phases/'+phase.id">{{$root.dict[$root.currentLocale]['lessons_lbl']}}</ion-button>
@@ -39,8 +42,9 @@
                 {{$root.dict[$root.currentLocale]['edit']}}
               </ion-button>
               <ion-button color="danger" slot="end" @click="deletePhase(phase.id)">{{$root.dict[$root.currentLocale]['delete']}}</ion-button>
+              <ion-reorder slot="end"></ion-reorder>
             </ion-item>
-          </ion-list>
+          </ion-reorder-group>
         </div>
       </div>
     </ion-content>
@@ -78,7 +82,8 @@ export default {
 
       },
       phases:[
-      ]
+      ],
+      reorder: false
     }
   },
   mounted() {
@@ -154,6 +159,42 @@ export default {
             this.$root.notify(this.$root.dict[this.$root.currentLocale]['error_ntf'])
           }
       )
+    },
+    doReorder(event) {
+      // Before complete is called with the items they will remain in the
+      // order before the drag
+      console.log('Before complete');
+
+      this.phases = event.detail.complete(this.phases);
+
+      // After complete is called the items will be in the new order
+      console.log('After complete');
+    },
+    toggleReorder(){
+      this.reorder = !this.reorder;
+      if(!this.reorder){
+        console.log('Saved');
+        axios({
+              method: 'POST',
+              url: `phases/order/`,
+              headers: {
+                "Authorization": `Token ${localStorage.getItem('token') || ''}`
+              },
+              data: {
+                'order':this.phases.map(value => value.id)
+              }
+            }
+        ).then(
+            () => {
+              this.$root.notify(this.$root.dict[this.$root.currentLocale]['saved_ntf'])
+            }
+        ).catch(
+            error => {
+              console.error(error);
+              this.$root.notify(this.$root.dict[this.$root.currentLocale]['error_ntf'])
+            }
+        )
+      }
     }
   }
 }

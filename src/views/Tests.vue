@@ -27,6 +27,9 @@
               >
                 {{$root.dict[$root.currentLocale]['add_test_btn']}}
               </ion-button>
+              <ion-button size="small" @click="toggleReorder">
+                {{reorder? $root.dict[$root.currentLocale]['save_order']:$root.dict[$root.currentLocale]['change_order'] }}
+              </ion-button>
             </div>
             <ion-segment v-model="selectedType" :value="-1">
               <ion-segment-button :value='-1'>
@@ -45,7 +48,8 @@
                 <ion-label>{{$root.dict[$root.currentLocale]['option_3']}}</ion-label>
               </ion-segment-button>
             </ion-segment>
-            <ion-list>
+            <ion-reorder-group @ionItemReorder="doReorder($event)" :disabled="!reorder">
+
               <ion-item v-for="test in filteredTests" :key="test.id">
                 <ion-label>{{test.name}}</ion-label>
                 <ion-button v-if="$root.user !== null && $root.user.is_admin || [0,3].includes(test.type)" slot="end" :href="'/t/tests/'+test.id">{{$root.dict[$root.currentLocale]['questions_lbl']}}</ion-button>
@@ -67,8 +71,9 @@
                 >
                   {{$root.dict[$root.currentLocale]['delete']}}
                 </ion-button>
+                <ion-reorder slot="end"></ion-reorder>
               </ion-item>
-            </ion-list>
+            </ion-reorder-group>
           </div>
         </div>
       </ion-content>
@@ -85,15 +90,18 @@ import {
   IonToolbar,
   IonSegment,
   IonSegmentButton,
-  IonList,
   IonItem,
   IonLabel,
-  IonButton, modalController
+  IonButton,
+  modalController,
+  IonReorder,
+  IonReorderGroup
 } from '@ionic/vue';
     import axios from "axios";
 import TestModal from "@/views/TestModal";
+import { defineComponent } from 'vue';
 
-    export default {
+    export default defineComponent({
       name: 'Folder',
       components: {
         IonButtons,
@@ -105,15 +113,17 @@ import TestModal from "@/views/TestModal";
         IonToolbar,
         IonSegment,
         IonSegmentButton,
-        IonList,
         IonItem,
         IonLabel,
-        IonButton
+        IonButton,
+        IonReorder,
+        IonReorderGroup
       },
       data(){
         return {
           selectedType: -1,
-          tests:[]
+          tests:[],
+          reorder: false,
         }
       },
       computed:{
@@ -204,9 +214,46 @@ import TestModal from "@/views/TestModal";
                 this.$root.notify(this.$root.dict[this.$root.currentLocale]['error_ntf'],'danger')
               }
           )
+        },
+        doReorder(event) {
+          // Before complete is called with the items they will remain in the
+          // order before the drag
+          console.log('Before complete');
+
+          this.tests = event.detail.complete(this.tests);
+
+          // After complete is called the items will be in the new order
+          console.log('After complete');
+        },
+        toggleReorder(){
+          this.reorder = !this.reorder;
+          if(!this.reorder){
+            console.log('Saved');
+            axios({
+                  method: 'POST',
+                  url: `tests/order/`,
+                  headers: {
+                    "Authorization": `Token ${localStorage.getItem('token') || ''}`
+                  },
+                  data: {
+                    'order':this.tests.map(value => value.id)
+                  }
+                }
+            ).then(
+                () => {
+                  this.$root.notify(this.$root.dict[this.$root.currentLocale]['saved_ntf'])
+                }
+            ).catch(
+                error => {
+                  console.error(error);
+                  this.$root.notify(this.$root.dict[this.$root.currentLocale]['error_ntf'])
+                }
+            )
+          }
         }
       }
     }
+    )
   </script>
 
 

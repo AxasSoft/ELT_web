@@ -51,8 +51,8 @@ addIcons({
   "arrow-back-outline": arrowBackOutline,
 });
 
-//axios.defaults.baseURL = 'http://localhost:5000/cp/';
-axios.defaults.baseURL = 'http://188.166.238.36:5000/cp/';
+axios.defaults.baseURL = 'http://localhost:5000/cp/';
+//axios.defaults.baseURL = 'http://188.166.238.36:5000/cp/';
 axios.interceptors.response.use(
     function (response) {
       return response;

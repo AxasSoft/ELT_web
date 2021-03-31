@@ -20,17 +20,28 @@
 
       <div id="container">
         <div class="workspace">
-          <div v-if="$root.user !== null && $root.user.is_admin" class="panel"><ion-button size="small" @click="openModal(null,$root.dict[$root.currentLocale]['category_h'], $root.dict[$root.currentLocale]['save'])">{{$root.dict[$root.currentLocale]['add_category']}}</ion-button></div>
-          <ion-list>
+          <div v-if="$root.user !== null && $root.user.is_admin" class="panel">
+            <ion-button size="small" @click="openModal(null,$root.dict[$root.currentLocale]['category_h'], $root.dict[$root.currentLocale]['save'])">
+              {{$root.dict[$root.currentLocale]['add_category']}}
+            </ion-button>
+            <ion-button size="small" @click="toggleReorder">
+              {{reorder? $root.dict[$root.currentLocale]['save_order']:$root.dict[$root.currentLocale]['change_order'] }}
+            </ion-button>
+          </div>
+          <ion-reorder-group @ionItemReorder="doReorder($event)" :disabled="!reorder">
+
             <ion-item v-for="category in categories" :key="category.id">
               <ion-label>{{category.name}}</ion-label>
               <ion-button slot="end" :href="'/t/categories/'+category.id">{{$root.dict[$root.currentLocale]['tests_lbl']}}</ion-button>
               <template v-if="$root.user !== null && $root.user.is_admin">
                 <ion-button slot="end" @click="openModal(category, $root.dict[$root.currentLocale]['category_h'], $root.dict[$root.currentLocale]['save'])">{{$root.dict[$root.currentLocale]['edit']}}</ion-button>
                 <ion-button color="danger" slot="end" @click="deleteCategory(category.id)">{{$root.dict[$root.currentLocale]['delete']}}</ion-button>
+                <ion-reorder slot="end"></ion-reorder>
               </template>
+
             </ion-item>
-          </ion-list>
+
+          </ion-reorder-group>
         </div>
       </div>
     </ion-content>
@@ -46,12 +57,15 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  modalController
+  modalController,
+  IonReorder,
+  IonReorderGroup
 } from '@ionic/vue';
 import axios from "axios";
 import CategoryModal from "@/views/CategoryModal";
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
   name: 'Folder',
   components: {
     IonButtons,
@@ -60,11 +74,14 @@ export default {
     IonMenuButton,
     IonPage,
     IonTitle,
-    IonToolbar
+    IonToolbar,
+    IonReorder,
+    IonReorderGroup
   },
   data(){
     return {
-      categories:[]
+      categories:[],
+      reorder: false,
     }
   },
   mounted(){
@@ -83,6 +100,7 @@ export default {
       }).then(
           response => {
             this.categories = response.data.data
+
           }
       )
     },
@@ -123,9 +141,45 @@ export default {
             this.$root.notify(this.$root.dict[this.$root.currentLocale]['error_ntf'])
           }
       )
+    },
+    doReorder(event) {
+      // Before complete is called with the items they will remain in the
+      // order before the drag
+      console.log('Before complete');
+
+      this.categories = event.detail.complete(this.categories);
+
+      // After complete is called the items will be in the new order
+      console.log('After complete');
+    },
+    toggleReorder(){
+      this.reorder = !this.reorder;
+      if(!this.reorder){
+        console.log('Saved');
+        axios({
+          method: 'POST',
+          url: `categories/order/`,
+          headers: {
+            "Authorization": `Token ${localStorage.getItem('token') || ''}`
+          },
+          data: {
+            'order':this.categories.map(value => value.id)
+          }
+        }
+        ).then(
+            () => {
+              this.$root.notify(this.$root.dict[this.$root.currentLocale]['saved_ntf'])
+            }
+        ).catch(
+            error => {
+              console.error(error);
+              this.$root.notify(this.$root.dict[this.$root.currentLocale]['error_ntf'])
+            }
+        )
+      }
     }
   }
-}
+})
 </script>
 
 <style scoped>

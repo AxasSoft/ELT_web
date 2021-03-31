@@ -24,14 +24,18 @@
             <ion-button size="small" @click="openModal(null,$root.dict[$root.currentLocale]['lesson_h'],$root.dict[$root.currentLocale]['save'], $route.params.phase_id)">
               {{$root.dict[$root.currentLocale]['add_lesson_btn']}}
             </ion-button>
+            <ion-button size="small" @click="toggleReorder">
+              {{reorder? $root.dict[$root.currentLocale]['save_order']:$root.dict[$root.currentLocale]['change_order'] }}
+            </ion-button>
           </div>
-          <ion-list>
+          <ion-reorder-group @ionItemReorder="doReorder($event)" :disabled="!reorder">
             <ion-item v-for="lesson in lessons" :key="lesson.id">
               <ion-label>{{lesson.name}}</ion-label>
               <ion-button slot="end" @click="openModal(lesson, $root.dict[$root.currentLocale]['lesson_h'],$root.dict[$root.currentLocale]['save'], $route.params.phase_id)">{{$root.dict[$root.currentLocale]['edit']}}</ion-button>
               <ion-button color="danger" slot="end" @click="deleteLesson(lesson.id)">{{$root.dict[$root.currentLocale]['delete']}}</ion-button>
+              <ion-reorder slot="end"></ion-reorder>
             </ion-item>
-          </ion-list>
+          </ion-reorder-group>
         </div>
       </div>
     </ion-content>
@@ -47,7 +51,9 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  modalController
+  modalController,
+    IonReorderGroup,
+    IonReorder
 } from '@ionic/vue';
 import LessonModal from "@/views/LessonModal.vue";
 import axios from "axios";
@@ -62,11 +68,14 @@ export default {
     IonMenuButton,
     IonPage,
     IonTitle,
-    IonToolbar
+    IonToolbar,
+    IonReorderGroup,
+    IonReorder
   },
   data(){
     return {
-      lessons:[]
+      lessons:[],
+      reorder: false
     }
   },
   mounted(){
@@ -126,6 +135,42 @@ export default {
             this.$root.notify(this.$root.dict[this.$root.currentLocale]['error_ntf'])
           }
       )
+    },
+    doReorder(event) {
+      // Before complete is called with the items they will remain in the
+      // order before the drag
+      console.log('Before complete');
+
+      this.lessons = event.detail.complete(this.lessons);
+
+      // After complete is called the items will be in the new order
+      console.log('After complete');
+    },
+    toggleReorder(){
+      this.reorder = !this.reorder;
+      if(!this.reorder){
+        console.log('Saved');
+        axios({
+              method: 'POST',
+              url: `lessons/order/`,
+              headers: {
+                "Authorization": `Token ${localStorage.getItem('token') || ''}`
+              },
+              data: {
+                'order':this.lessons.map(value => value.id)
+              }
+            }
+        ).then(
+            () => {
+              this.$root.notify(this.$root.dict[this.$root.currentLocale]['saved_ntf'])
+            }
+        ).catch(
+            error => {
+              console.error(error);
+              this.$root.notify(this.$root.dict[this.$root.currentLocale]['error_ntf'])
+            }
+        )
+      }
     }
   }
 }
