@@ -8,6 +8,23 @@
     </ion-toolbar>
   </ion-header>
   <ion-content class="ion-padding">
+
+    <ion-item>
+      <ion-label >Level</ion-label>
+      <ion-select
+          :value="affectedPhase.level_id"
+          v-on:ionChange="optionChanged"
+      >
+        <ion-select-option
+            v-for="level in levels"
+            :key="level.id" :value="level.id"
+
+        >
+          {{level.name}}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
     <ion-item>
       <ion-label position="stacked" >{{$root.dict[$root.currentLocale]['name_lbl']}}</ion-label>
       <ion-input v-model="affectedPhase.name"></ion-input>
@@ -26,7 +43,9 @@ import {
   IonInput,
   IonItem,
   IonLabel,
-  modalController
+  modalController,
+    IonSelect,
+    IonSelectOption
 } from '@ionic/vue';
 import { defineComponent } from 'vue';
 import axios from "axios";
@@ -37,6 +56,7 @@ export default defineComponent({
   props: [ 'phase','title', 'action', 'level', 'stopList'],
   data() {
     return {
+      levels: [],
       affectedPhase: {
         id:null,
         name: ''
@@ -44,41 +64,54 @@ export default defineComponent({
     }
   },
   created() {
+    axios({
+      method: "GET",
+      url: 'levels/',
+      headers: {
+        "Authorization": `Token ${localStorage.getItem('token') || ''}`
+      }
+    }).then(
+        response => {
+          this.levels = response.data.data
+        }
+    )
     if(this.phase !== null){
-      this.affectedPhase = this.phase
+      this.affectedPhase = {...this.phase, 'level_id': +this.level};
+
     }
   },
-  methods:{
+  methods: {
     dismissModal(data) {
-       modalController.dismiss(data);
-      },
-    save(){
-      if(this.affectedPhase.name === ''){
+      modalController.dismiss(data);
+    },
+    save() {
+      if (this.affectedPhase.name === '') {
         alert(this.$root.dict[this.$root.currentLocale]['enter_name'])
       }
 
-      if((this.phase === null || this.affectedPhase.name !== this.phase.name) && this.stopList.includes(this.affectedPhase.name)){
+      if ((this.phase === null || this.affectedPhase.name !== this.phase.name) && this.stopList.includes(this.affectedPhase.name)) {
         alert(this.$root.dict[this.$root.currentLocale]['duplicated_name'])
         return
       }
 
-      axios(this.affectedPhase.id === null? {
+      axios(this.affectedPhase.id === null ? {
         method: 'POST',
-        url: `levels/${this.level}/phases/`,
+        url: `levels/${this.affectedPhase['level_id']}/phases/`,
         headers: {
           "Authorization": `Token ${localStorage.getItem('token') || ''}`
         },
         data: {
           name: this.affectedPhase.name
         },
-      }:{
+      } : {
         method: 'PUT',
         url: `phases/${this.affectedPhase.id}/`,
         headers: {
           "Authorization": `Token ${localStorage.getItem('token') || ''}`
         },
         data: {
-          name: this.affectedPhase.name
+          name: this.affectedPhase.name,
+          'level_id': this.affectedPhase.level_id
         }
       }).then(
           (response) => {
@@ -86,7 +119,7 @@ export default defineComponent({
             this.$root.notify(this.$root.dict[this.$root.currentLocale]['saved_ntf'])
             this.dismissModal(
                 {
-                  id: this.affectedPhase.id !== null?this.affectedPhase.id: response.data.data.id,
+                  id: this.affectedPhase.id !== null ? this.affectedPhase.id : response.data.data.id,
                   name: this.affectedPhase.name,
                   isNew: this.affectedPhase.id === null
                 }
@@ -99,9 +132,13 @@ export default defineComponent({
           }
       )
 
-    }
     },
-  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel }
+
+    optionChanged(event) {
+      this.affectedPhase['level_id'] = event.target.value
+    },
+  },
+  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel,IonSelect, IonSelectOption }
 });
 </script>
 

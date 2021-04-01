@@ -9,6 +9,21 @@
   </ion-header>
   <ion-content class="ion-padding">
     <ion-item>
+      <ion-label >Phase</ion-label>
+      <ion-select
+          :value="affectedLesson.phase_id"
+          v-on:ionChange="optionChanged"
+      >
+        <ion-select-option
+            v-for="phase in phases"
+            :key="phase.id" :value="phase.id"
+
+        >
+          {{phase.name}}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
       <ion-label position="stacked">{{$root.dict[$root.currentLocale]['name_lbl']}}</ion-label>
       <ion-input v-model="affectedLesson.name"></ion-input>
     </ion-item>
@@ -44,13 +59,28 @@ export default defineComponent({
       affectedLesson: {
         id:null,
         name: '',
-        url: ''
-      }
+        url: '',
+        'phase_id': +this.phase
+      },
+      phases:[]
     }
   },
   created() {
+
+    axios({
+      method: "GET",
+      url: `phases/`,
+      headers: {
+        "Authorization": `Token ${localStorage.getItem('token') || ''}`
+      }
+    }).then(
+        response => {
+          this.phases = response.data.data
+        }
+    )
+
     if(this.lesson !== null){
-      this.affectedLesson = this.lesson
+      this.affectedLesson =  {...this.lesson}
     }
   },
   methods:{
@@ -113,7 +143,10 @@ export default defineComponent({
           }
       )
 
-    }
+    },
+    optionChanged(event) {
+      this.affectedLesson['phase_id'] = event.target.value
+    },
   },
   components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel }
 });
