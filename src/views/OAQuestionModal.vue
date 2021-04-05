@@ -25,6 +25,12 @@
         </ion-select-option>
       </ion-select>
     </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">{{$root.dict[$root.currentLocale]['description_lbl']}}</ion-label>
+      <ion-input v-model="affectedQuestion.description"></ion-input>
+    </ion-item>
+
     <ion-item>
       <ion-label position="stacked">{{$root.dict[$root.currentLocale]['text_lbl']}}</ion-label>
       <ion-input v-model="affectedQuestion.text"></ion-input>
@@ -44,6 +50,11 @@
 
 
     </template>
+
+    <ion-item>
+      <ion-label position="stacked">{{$root.dict[$root.currentLocale]['url_lbl']}}</ion-label>
+      <ion-input v-model="affectedQuestion.url"></ion-input>
+    </ion-item>
 
     <ion-item>
       <ion-label position="stacked">{{$root.dict[$root.currentLocale]['correct_answer_lbl']}}</ion-label>
@@ -132,6 +143,8 @@ export default defineComponent({
 
       const formData = new FormData();
       formData.append('text', this.affectedQuestion.text);
+      formData.append('url', this.affectedQuestion.url)
+      formData.append('description', this.affectedQuestion.description)
       if(this.affectedQuestion.file !== null) {
         formData.append('file', this.affectedQuestion.file, this.affectedQuestion.file.name);
       }

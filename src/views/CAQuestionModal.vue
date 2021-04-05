@@ -26,7 +26,10 @@
         </ion-select-option>
       </ion-select>
     </ion-item>
-
+    <ion-item>
+      <ion-label position="stacked">{{$root.dict[$root.currentLocale]['description_lbl']}}</ion-label>
+      <ion-input v-model="affectedQuestion.description"></ion-input>
+    </ion-item>
     <ion-item>
       <ion-label position="stacked">{{$root.dict[$root.currentLocale]['text_lbl']}}</ion-label>
       <ion-input v-model="affectedQuestion.text"></ion-input>
@@ -44,6 +47,11 @@
         <ion-button @click="deleteFile">{{$root.dict[$root.currentLocale]['detach_file']}}</ion-button>
 
     </template>
+
+    <ion-item>
+      <ion-label position="stacked">{{$root.dict[$root.currentLocale]['url_lbl']}}</ion-label>
+      <ion-input v-model="affectedQuestion.url"></ion-input>
+    </ion-item>
 
     <ion-item v-if="affectedQuestion.id !== null">
       <table>
@@ -143,6 +151,8 @@ export default defineComponent({
         text: '',
         file: null,
         answers: [],
+        description: '',
+        url: '',
         'test_id': +this.test
       },
       newAnswer:{
@@ -199,6 +209,8 @@ export default defineComponent({
 
       const formData = new FormData();
       formData.append('text', this.affectedQuestion.text);
+      formData.append('url', this.affectedQuestion.url)
+      formData.append('description', this.affectedQuestion.description)
       if(this.affectedQuestion.file !== null) {
         formData.append('file', this.affectedQuestion.file, this.affectedQuestion.file.name);
       }

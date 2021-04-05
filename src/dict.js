@@ -88,6 +88,7 @@ const dict = {
             'visible_lbl': 'Видимая',
             'ok_btn': 'Подтвердить',
             'cancel_btn': 'Отменить',
+            'description_lbl': 'Описание',
         },
         'en': {
             'change_qs_1_btn': 'for moderation',
@@ -177,7 +178,7 @@ const dict = {
             'visible_lbl': 'Visible',
             'ok_btn': 'Ok',
             'cancel_btn': 'Cancel',
-
+            'description_lbl': 'Description'
         }
     };
 
