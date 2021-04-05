@@ -85,7 +85,9 @@ const dict = {
             'not_found_t': 'Запрошенная страница не найдена',
             'save_order':'Сохранить порядок',
             'change_order': 'Изменить порядок',
-            'visible_lbl': 'Видимая'
+            'visible_lbl': 'Видимая',
+            'ok_btn': 'Подтвердить',
+            'cancel_btn': 'Отменить',
         },
         'en': {
             'change_qs_1_btn': 'for moderation',
@@ -172,7 +174,10 @@ const dict = {
             'not_found_t': 'Page not found',
             'save_order':'Save order',
             'change_order': 'Change order',
-            'visible_lbl': 'Visible'
+            'visible_lbl': 'Visible',
+            'ok_btn': 'Ok',
+            'cancel_btn': 'Cancel',
+
         }
     };
 

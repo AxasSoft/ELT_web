@@ -8,6 +8,25 @@
     </ion-toolbar>
   </ion-header>
   <ion-content class="ion-padding">
+
+    <ion-item>
+      <ion-label >{{$root.dict[$root.currentLocale]['test_h']}}</ion-label>
+      <ion-select
+          :value="affectedQuestion.test_id"
+          v-on:ionChange="optionChanged"
+          :ok-text="$root.dict[$root.currentLocale]['ok_btn']"
+          :cancel-text="$root.dict[$root.currentLocale]['cancel_btn']"
+      >
+        <ion-select-option
+            v-for="test in tests"
+            :key="test.id" :value="test.id"
+
+        >
+          {{test.name}}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+
     <ion-item>
       <ion-label position="stacked">{{$root.dict[$root.currentLocale]['text_lbl']}}</ion-label>
       <ion-input v-model="affectedQuestion.text"></ion-input>
@@ -36,9 +55,19 @@
           <td><ion-label>{{$root.dict[$root.currentLocale]['answers_actions_h']}}</ion-label></td>
         </tr>
         <tr v-for="answer in affectedQuestion.answers" :key="answer.id">
-          <td><ion-label>{{answer.text}}</ion-label></td>
-          <td><ion-label>{{answer.is_correct? $root.dict[$root.currentLocale]['yes_option']: $root.dict[$root.currentLocale]['no_option']}}</ion-label></td>
-          <td><ion-button  color="danger" @click="deleteAnswer(answer.id)">{{$root.dict[$root.currentLocale]['delete']}}</ion-button></td>
+          <template v-if="answer.editing">
+            <td><ion-item><ion-input v-model="answer.text"></ion-input></ion-item></td>
+            <td><ion-item><ion-checkbox v-model="answer.is_correct"></ion-checkbox></ion-item></td>
+            <td><ion-button @click="editAnswer(answer)">{{$root.dict[$root.currentLocale]['save']}}</ion-button></td>
+          </template>
+          <template v-else>
+            <td><ion-label>{{answer.text}}</ion-label></td>
+            <td><ion-label>{{answer.is_correct? $root.dict[$root.currentLocale]['yes_option']: $root.dict[$root.currentLocale]['no_option']}}</ion-label></td>
+            <td>
+              <ion-button  @click="answer.editing = true">{{$root.dict[$root.currentLocale]['edit']}}</ion-button>
+              <ion-button  color="danger" @click="deleteAnswer(answer.id)">{{$root.dict[$root.currentLocale]['delete']}}</ion-button>
+            </td>
+          </template>
         </tr>
         <tr>
           <td><ion-item><ion-input v-model="newAnswer.text"></ion-input></ion-item></td>
@@ -58,9 +87,19 @@
           <td><ion-label>{{$root.dict[$root.currentLocale]['answers_actions_h']}}</ion-label></td>
         </tr>
         <tr v-for="answer in tempAnswers" :key="answer.id">
-          <td><ion-label>{{answer.text}}</ion-label></td>
-          <td><ion-label>{{answer.is_correct? $root.dict[$root.currentLocale]['yes_option']: $root.dict[$root.currentLocale]['no_option']}}</ion-label></td>
-          <td><ion-button  color="danger" @click="deleteAnswer(answer.id)">{{$root.dict[$root.currentLocale]['delete']}}</ion-button></td>
+          <template v-if="answer.editing">
+            <td><ion-item><ion-input v-model="answer.text"></ion-input></ion-item></td>
+            <td><ion-item><ion-checkbox v-model="answer.is_correct"></ion-checkbox></ion-item></td>
+            <td><ion-button @click="answer.editing = false">{{$root.dict[$root.currentLocale]['save']}}</ion-button></td>
+          </template>
+          <template v-else>
+            <td><ion-label>{{answer.text}}</ion-label></td>
+            <td><ion-label>{{answer.is_correct? $root.dict[$root.currentLocale]['yes_option']: $root.dict[$root.currentLocale]['no_option']}}</ion-label></td>
+            <td>
+              <ion-button  @click="answer.editing = true">{{$root.dict[$root.currentLocale]['edit']}}</ion-button>
+              <ion-button  color="danger" @click="deleteAnswer(answer.id)">{{$root.dict[$root.currentLocale]['delete']}}</ion-button>
+            </td>
+          </template>
         </tr>
         <tr>
           <td><ion-item><ion-input v-model="newAnswer.text"></ion-input></ion-item></td>
@@ -76,17 +115,19 @@
 
 <script>
 import {
-  IonContent,
-  IonHeader,
-  IonTitle,
-  IonToolbar,
-  IonButton,
-  IonInput,
-  IonItem,
-  IonLabel,
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
     IonCheckbox,
     IonButtons,
-  modalController,
+    modalController,
+    IonSelect,
+    IonSelectOption
 } from '@ionic/vue';
 import { defineComponent } from 'vue';
 import axios from "axios";
@@ -101,21 +142,36 @@ export default defineComponent({
         id:null,
         text: '',
         file: null,
-        answers: []
+        answers: [],
+        'test_id': +this.test
       },
       newAnswer:{
         text: '',
         'is_correct': false
       },
       tempAnswers: [],
-      link: null
+      link: null,
+      tests:[],
     }
   },
   mounted() {
+    axios({
+      method: "GET",
+      url: 'tests/',
+      headers: {
+        "Authorization": `Token ${localStorage.getItem('token') || ''}`
+      }
+    }).then(
+        response => {
+          this.tests = response.data.data
+        }
+    )
     if(this.question !== null){
-      this.affectedQuestion = this.question
+      this.affectedQuestion = {...this.question, 'test_id': +this.test}
+
       this.link = this.question.file
     }
+    this.affectedQuestion.answers = this.affectedQuestion.answers.map(it => {return {...it, editing: false}})
 
   },
   methods:{
@@ -146,11 +202,14 @@ export default defineComponent({
       if(this.affectedQuestion.file !== null) {
         formData.append('file', this.affectedQuestion.file, this.affectedQuestion.file.name);
       }
+      if(this.affectedQuestion.id !== null){
+        formData.append('test_id', this.affectedQuestion['test_id'])
+      }
 
 
       axios(this.affectedQuestion.id === null? {
         method: 'POST',
-        url: `tests/${this.test}/questions/`,
+        url: `tests/${this.affectedQuestion['test_id']}/questions/`,
         headers: {
           "Authorization": `Token ${localStorage.getItem('token') || ''}`
         },
@@ -248,7 +307,8 @@ export default defineComponent({
           {
             id: 'temp-'+this.tempAnswers.length,
             text: this.newAnswer.text,
-            'is_correct': this.newAnswer.is_correct
+            'is_correct': this.newAnswer.is_correct,
+            'editing': false
           }
         ]
         this.newAnswer = {
@@ -324,9 +384,37 @@ export default defineComponent({
               this.$root.notify(this.$root.dict[this.$root.currentLocale]['error_ntf'],'danger')
             }
         )
-      }
+      },
+    optionChanged(event) {
+      this.affectedQuestion['test_id'] = event.target.value
+    },
+    editAnswer(answer){
+      axios(
+          {
+            method: "PUT",
+            url: `answers/${answer.id}/`,
+            headers: {
+              "Authorization": `Token ${localStorage.getItem('token') || ''}`
+            },
+            data: {
+              text: answer.text,
+              'is_correct': answer.is_correct
+            }
+          }
+      ).then(
+          () => {
+            this.$root.notify(this.$root.dict[this.$root.currentLocale]['saved_ntf'])
+          }
+      ).catch(
+          error => {
+            console.error(error);
+            this.$root.notify(this.$root.dict[this.$root.currentLocale]['error_ntf'])
+          }
+      )
+      answer.editing = false
+    }
   },
-  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel, IonCheckbox, IonButtons }
+  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel, IonCheckbox, IonButtons, IonSelect, IonSelectOption }
 });
 </script>
 

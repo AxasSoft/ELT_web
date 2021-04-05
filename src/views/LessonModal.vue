@@ -9,10 +9,12 @@
   </ion-header>
   <ion-content class="ion-padding">
     <ion-item>
-      <ion-label >Phase</ion-label>
+      <ion-label >{{$root.dict[$root.currentLocale]['phase_h']}}</ion-label>
       <ion-select
           :value="affectedLesson.phase_id"
           v-on:ionChange="optionChanged"
+          :ok-text="$root.dict[$root.currentLocale]['ok_btn']"
+          :cancel-text="$root.dict[$root.currentLocale]['cancel_btn']"
       >
         <ion-select-option
             v-for="phase in phases"

@@ -9,6 +9,23 @@
   </ion-header>
   <ion-content class="ion-padding">
     <ion-item>
+      <ion-label >{{$root.dict[$root.currentLocale]['test_h']}}</ion-label>
+      <ion-select
+          :value="affectedQuestion.test_id"
+          v-on:ionChange="optionChanged"
+          :ok-text="$root.dict[$root.currentLocale]['ok_btn']"
+          :cancel-text="$root.dict[$root.currentLocale]['cancel_btn']"
+      >
+        <ion-select-option
+            v-for="test in tests"
+            :key="test.id" :value="test.id"
+
+        >
+          {{test.name}}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
       <ion-label position="stacked">{{$root.dict[$root.currentLocale]['text_lbl']}}</ion-label>
       <ion-input v-model="affectedQuestion.text"></ion-input>
     </ion-item>
@@ -41,15 +58,17 @@
 
 <script>
 import {
-  IonContent,
-  IonHeader,
-  IonTitle,
-  IonToolbar,
-  IonButton,
-  IonInput,
-  IonItem,
-  IonLabel,
-  modalController
+    IonContent,
+    IonHeader,
+    IonTitle,
+    IonToolbar,
+    IonButton,
+    IonInput,
+    IonItem,
+    IonLabel,
+    modalController,
+    IonSelect,
+    IonSelectOption
 } from '@ionic/vue';
 import { defineComponent } from 'vue';
 import axios from "axios";
@@ -64,14 +83,27 @@ export default defineComponent({
         id:null,
         text: '',
         file: null,
-        'correct_answer': ''
+        'correct_answer': '',
+        'test_id': this.test
       },
-      link: null
+      link: null,
+      tests:[]
     }
   },
   mounted() {
+    axios({
+      method: "GET",
+      url: 'tests/',
+      headers: {
+        "Authorization": `Token ${localStorage.getItem('token') || ''}`
+      }
+    }).then(
+        response => {
+          this.tests = response.data.data
+        }
+    )
     if(this.question !== null){
-      this.affectedQuestion = this.question
+      this.affectedQuestion = {...this.question, 'test_id': +this.test}
       this.link = this.question.file
     }
     this.affectedQuestion.file = null
@@ -103,11 +135,14 @@ export default defineComponent({
       if(this.affectedQuestion.file !== null) {
         formData.append('file', this.affectedQuestion.file, this.affectedQuestion.file.name);
       }
+      if(this.affectedQuestion.id !== null){
+        formData.append('test_id', this.affectedQuestion['test_id'])
+      }
 
 
       axios(this.affectedQuestion.id === null? {
         method: 'POST',
-        url: `tests/${this.test}/questions/`,
+        url: `tests/${this.affectedQuestion['test_id']}/questions/`,
         headers: {
           "Authorization": `Token ${localStorage.getItem('token') || ''}`
         },
@@ -185,7 +220,10 @@ export default defineComponent({
             this.$root.notify(this.$root.dict[this.$root.currentLocale]['error_ntf'],'danger')
           }
       )
-    }
+    },
+    optionChanged(event) {
+      this.affectedQuestion['test_id'] = event.target.value
+    },
   },
   components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel }
 });

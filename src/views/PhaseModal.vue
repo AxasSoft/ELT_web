@@ -10,10 +10,12 @@
   <ion-content class="ion-padding">
 
     <ion-item>
-      <ion-label >Level</ion-label>
+      <ion-label >{{$root.dict[$root.currentLocale]['level_h']}}</ion-label>
       <ion-select
           :value="affectedPhase.level_id"
           v-on:ionChange="optionChanged"
+          :ok-text="$root.dict[$root.currentLocale]['ok_btn']"
+          :cancel-text="$root.dict[$root.currentLocale]['cancel_btn']"
       >
         <ion-select-option
             v-for="level in levels"

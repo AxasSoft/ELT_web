@@ -9,6 +9,23 @@
   </ion-header>
   <ion-content class="ion-padding">
     <ion-item>
+      <ion-label >{{$root.dict[$root.currentLocale]['category_h']}}</ion-label>
+      <ion-select
+          :value="affectedTest.category_id"
+          v-on:ionChange="optionChanged"
+          :ok-text="$root.dict[$root.currentLocale]['ok_btn']"
+          :cancel-text="$root.dict[$root.currentLocale]['cancel_btn']"
+      >
+        <ion-select-option
+            v-for="category in categories"
+            :key="category.id" :value="category.id"
+
+        >
+          {{category.name}}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
       <ion-label position="stacked">{{$root.dict[$root.currentLocale]['name_lbl']}}</ion-label>
       <ion-input v-model="affectedTest.name"></ion-input>
     </ion-item>
@@ -26,7 +43,9 @@ import {
   IonInput,
   IonItem,
   IonLabel,
-  modalController
+  modalController,
+    IonSelect,
+    IonSelectOption
 } from '@ionic/vue';
 import { defineComponent } from 'vue';
 import axios from "axios";
@@ -40,13 +59,26 @@ export default defineComponent({
       affectedTest: {
         id:null,
         name: '',
-        url: ''
-      }
+        url: '',
+        'category_id': +this.category
+      },
+      categories: []
     }
   },
   created() {
+    axios({
+      method: "GET",
+      url: `categories/`,
+      headers: {
+        "Authorization": `Token ${localStorage.getItem('token') || ''}`
+      }
+    }).then(
+        response => {
+          this.categories = response.data.data
+        }
+    )
     if(this.test !== null){
-      this.affectedTest = this.test
+      this.affectedTest = {...this.test, 'category_id':+this.category}
     }
   },
   methods:{
@@ -64,7 +96,7 @@ export default defineComponent({
       }
       axios(this.affectedTest.id === null? {
         method: 'POST',
-        url: `categories/${this.category}/tests/`,
+        url: `categories/${this.affectedTest['category_id']}/tests/`,
         headers: {
           "Authorization": `Token ${localStorage.getItem('token') || ''}`
         },
@@ -79,6 +111,7 @@ export default defineComponent({
         },
         data: {
           name: this.affectedTest.name,
+          'category_id': this.affectedTest['category_id']
         }
       }).then(
           (response) => {
@@ -98,9 +131,12 @@ export default defineComponent({
           }
       )
 
-    }
+    },
+    optionChanged(event) {
+      this.affectedTest['category_id'] = event.target.value
+    },
   },
-  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel }
+  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel, IonSelect, IonSelectOption }
 });
 </script>
 
