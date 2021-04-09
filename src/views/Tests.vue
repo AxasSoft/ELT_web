@@ -141,7 +141,7 @@ import { defineComponent } from 'vue';
         init(){
           axios({
             method: "GET",
-            url: `categories/${this.$route.params.category_id}/tests/`,
+            url: `categories/${this.$route.params.category_id}/tests/?timestamp=${new Date().getTime()}`,
             headers: {
               "Authorization": `Token ${localStorage.getItem('token') || ''}`
             }

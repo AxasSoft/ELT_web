@@ -5,7 +5,7 @@
         <ion-buttons slot="start">
           <ion-menu-button color="primary"></ion-menu-button>
           <ion-button @click="$router.back"><ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon></ion-button>
-          <ion-button @click="$router.forward"><ion-icon slot="icon-only" name="arrow-forward-outline" @click="forward"></ion-icon></ion-button>
+          <ion-button @click="$router.forward"><ion-icon slot="icon-only" name="arrow-forward-outline"></ion-icon></ion-button>
         </ion-buttons>
         <ion-title>{{$root.dict[$root.currentLocale]['questions_h']}}</ion-title>
       </ion-toolbar>

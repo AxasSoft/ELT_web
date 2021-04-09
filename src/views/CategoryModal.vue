@@ -45,7 +45,8 @@ export default defineComponent({
     return {
       affectedCategory: {
         id:null,
-        name: ''
+        name: '',
+        visible: false
       }
     }
   },
@@ -59,6 +60,7 @@ export default defineComponent({
       modalController.dismiss(data);
     },
     save(){
+
       if(this.affectedCategory.name === ''){
         alert(this.$root.dict[this.$root.currentLocale]['enter_name'])
         return
@@ -67,8 +69,8 @@ export default defineComponent({
         alert(this.$root.dict[this.$root.currentLocale]['duplicated_name'])
         return
       }
-      axios(this.affectedCategory.id === null? {
-        method: 'POST',
+
+      const request = {
         url: `categories/`,
         headers: {
           "Authorization": `Token ${localStorage.getItem('token') || ''}`
@@ -76,18 +78,19 @@ export default defineComponent({
         data: {
           name: this.affectedCategory.name,
           visible: this.affectedCategory.visible
-        },
-      }:{
-        method: 'PUT',
-        url: `categories/${this.affectedCategory.id}/`,
-        headers: {
-          "Authorization": `Token ${localStorage.getItem('token') || ''}`
-        },
-        data: {
-          name: this.affectedCategory.name,
-          visible: this.affectedCategory.visible
         }
-      }).then(
+      }
+
+      if(this.affectedCategory.id === null){
+        request.method =  'POST';
+      } else {
+        request.method = 'PUT';
+        request.url +=  `${this.affectedCategory.id}/`;
+      }
+
+      console.log(request)
+
+      axios(request).then(
           (response) => {
             this.$root.notify(this.$root.dict[this.$root.currentLocale]['saved_ntf'])
             console.log('Saved');

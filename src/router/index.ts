@@ -23,6 +23,10 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import ('../views/Categories.vue')
   },
   {
+    path: '/s/statistics/',
+    component: () => import ('../views/Statistics.vue')
+  },
+  {
     path: '/t/categories/:category_id',
     component: () => import ('../views/Tests.vue')
   },

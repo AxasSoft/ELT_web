@@ -39,7 +39,7 @@
 import { IonApp, IonContent, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonMenu, IonMenuToggle, IonRouterOutlet, IonSplitPane, toastController } from '@ionic/vue';
 import { defineComponent, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import {bookmarkOutline, bookmarkSharp, heartOutline, heartSharp, peopleOutline, peopleSharp, warningOutline, warningSharp, serverOutline, serverSharp, checkboxOutline, checkboxSharp, callOutline, callSharp } from 'ionicons/icons';
+import {bookmarkOutline, bookmarkSharp, heartOutline, heartSharp, peopleOutline, peopleSharp, warningOutline, warningSharp, serverOutline, serverSharp, checkboxOutline, checkboxSharp, callOutline, callSharp, analyticsOutline, analyticsSharp } from 'ionicons/icons';
 import axios from 'axios';
 import router from "@/router";
 import {dict} from '@/./dict.js'
@@ -51,8 +51,8 @@ addIcons({
   "arrow-back-outline": arrowBackOutline,
 });
 
-axios.defaults.baseURL = 'http://localhost:5000/cp/';
-//axios.defaults.baseURL = 'http://188.166.238.36:5000/cp/';
+//axios.defaults.baseURL = 'http://localhost:5000/cp/';
+axios.defaults.baseURL = 'http://188.166.238.36:5000/cp/';
 axios.interceptors.response.use(
     function (response) {
       return response;
@@ -132,6 +132,14 @@ export default defineComponent({
         url: '/c/contacts',
         iosIcon: callOutline,
         mdIcon: callSharp,
+        forOnlyAdmin: true
+      },
+      {
+        section: 's',
+        title: 'statistics_mi',
+        url: '/s/statistics',
+        iosIcon: analyticsOutline,
+        mdIcon: analyticsSharp,
         forOnlyAdmin: true
       }
     ];
@@ -222,6 +230,14 @@ export default defineComponent({
       this.$forceUpdate();
     }
   },
+  watch:{
+    $route(){
+      const path = window.location.pathname;
+      if (path !== undefined) {
+        this.selectedIndex = this.appPages.findIndex(page => path.toLowerCase().startsWith('/' + page.section.toLowerCase() + '/'));
+      }
+    }
+  }
 });
 </script>
 
