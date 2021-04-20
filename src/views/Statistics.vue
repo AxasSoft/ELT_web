@@ -280,10 +280,16 @@ export default {
 
 <style scoped>
 
+table tr:first-child td{
+  color: #4782ff;
+}
+
+table tr:nth-child(even) {background: #ddeeff}
 
 td{
   padding: 12px;
   width: 200px;
+  color: black;
 }
 
 </style>

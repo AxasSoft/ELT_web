@@ -17,10 +17,25 @@
 
 
             <ion-menu-toggle auto-hide="false" v-for="(p, i) in appPages" :key="i">
-              <ion-item v-if="!p.forOnlyAdmin || (user !== null && user.is_admin)" @click="selectedIndex = i" router-direction="root" :router-link="p.url" lines="none" detail="false" class="hydrated" :class="{ selected: selectedIndex === i }">
-                <ion-icon slot="start" :ios="p.iosIcon" :md="p.mdIcon"></ion-icon>
+
+              <template v-if="!p.forOnlyAdmin || (user !== null && user.is_admin)">
+
+                <ion-item
+
+                    @click="selectedIndex = i"
+                    router-direction="root"
+                    :router-link="p.url"
+                    lines="none"
+                    detail="false"
+                    class="hydrated"
+                    :class="{ selected: selectedIndex === i }"
+                >
+
+                <ion-icon v-if="p.level === 0" slot="start" :ios="p.iosIcon" :md="p.mdIcon"></ion-icon>
                 <ion-label>{{ dict[currentLocale][p.title] }}</ion-label>
-              </ion-item>
+                </ion-item>
+              </template>
+
             </ion-menu-toggle>
           </ion-list>
           <ion-buttons>
@@ -45,6 +60,7 @@ import router from "@/router";
 import {dict} from '@/./dict.js'
 import { addIcons } from "ionicons";
 import { arrowForwardOutline, arrowBackOutline } from "ionicons/icons";
+
 
 addIcons({
   "arrow-forward-outline": arrowForwardOutline,
@@ -108,7 +124,8 @@ export default defineComponent({
         url: '/u/users',
         iosIcon: peopleOutline,
         mdIcon: peopleSharp,
-        forOnlyAdmin: true
+        forOnlyAdmin: true,
+        level: 0
       },
       {
         section: 'k',
@@ -116,7 +133,8 @@ export default defineComponent({
         url: '/k/kb',
         iosIcon: serverOutline,
         mdIcon: serverSharp,
-        forOnlyAdmin: true
+        forOnlyAdmin: true,
+        level: 0
       },
       {
         section: 't',
@@ -124,7 +142,8 @@ export default defineComponent({
         url: '/t/categories',
         iosIcon: checkboxOutline,
         mdIcon: checkboxSharp,
-        forOnlyAdmin: false
+        forOnlyAdmin: false,
+        level: 0
       },
       {
         section: 'c',
@@ -132,7 +151,8 @@ export default defineComponent({
         url: '/c/contacts',
         iosIcon: callOutline,
         mdIcon: callSharp,
-        forOnlyAdmin: true
+        forOnlyAdmin: true,
+        level: 0
       },
       {
         section: 's',
@@ -140,8 +160,40 @@ export default defineComponent({
         url: '/s/statistics',
         iosIcon: analyticsOutline,
         mdIcon: analyticsSharp,
-        forOnlyAdmin: true
-      }
+        forOnlyAdmin: true,
+        level: 0
+
+      },
+      /*{
+        section: 's',
+        title: 'stat_option_0',
+        url: '/s/statistics/clients',
+        iosIcon: analyticsOutline,
+        mdIcon: analyticsSharp,
+        forOnlyAdmin: true,
+        level: 1
+
+      },
+      {
+        section: 's',
+        title: 'stat_option_1',
+        url: '/s/statistics/audience',
+        iosIcon: analyticsOutline,
+        mdIcon: analyticsSharp,
+        forOnlyAdmin: true,
+        level: 1
+
+      },
+      {
+        section: 's',
+        title: 'stat_option_2',
+        url: '/s/statistics/tests',
+        iosIcon: analyticsOutline,
+        mdIcon: analyticsSharp,
+        forOnlyAdmin: true,
+        level: 1
+
+      } */
     ];
 
     const path = window.location.pathname;

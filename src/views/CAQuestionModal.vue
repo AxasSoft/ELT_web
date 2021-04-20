@@ -211,7 +211,8 @@ export default defineComponent({
       formData.append('text', this.affectedQuestion.text);
       formData.append('url', this.affectedQuestion.url)
       formData.append('description', this.affectedQuestion.description)
-      if(this.affectedQuestion.file !== null) {
+      if(this.affectedQuestion.file !== null && this.affectedQuestion.file instanceof Blob) {
+
         formData.append('file', this.affectedQuestion.file, this.affectedQuestion.file.name);
       }
       if(this.affectedQuestion.id !== null){

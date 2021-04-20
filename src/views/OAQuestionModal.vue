@@ -95,7 +95,9 @@ export default defineComponent({
         text: '',
         file: null,
         'correct_answer': '',
-        'test_id': this.test
+        'test_id': this.test,
+        url: '',
+        description: ''
       },
       link: null,
       tests:[]
@@ -145,7 +147,7 @@ export default defineComponent({
       formData.append('text', this.affectedQuestion.text);
       formData.append('url', this.affectedQuestion.url)
       formData.append('description', this.affectedQuestion.description)
-      if(this.affectedQuestion.file !== null) {
+      if(this.affectedQuestion.file !== null && this.affectedQuestion.file instanceof Blob) {
         formData.append('file', this.affectedQuestion.file, this.affectedQuestion.file.name);
       }
       if(this.affectedQuestion.id !== null){
@@ -238,7 +240,7 @@ export default defineComponent({
       this.affectedQuestion['test_id'] = event.target.value
     },
   },
-  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel }
+  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel, IonSelect, IonSelectOption }
 });
 </script>
 
