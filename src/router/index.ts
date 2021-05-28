@@ -4,7 +4,7 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: Array<RouteRecordRaw> = [
   {
     path: '',
-    redirect: '/t/categories'
+    redirect: '/t/courses'
   },
   {
     path: '/u/users',
@@ -15,15 +15,19 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import ('../views/Contacts.vue')
   },
   {
-    path: '/k/kb',
+    path: '/k/courses/:course_id/kb',
     component: () => import ('../views/Knowledge.vue')
   },
   {
-    path: '/t/categories',
+    path: '/t/courses/:course_id/categories',
     component: () => import ('../views/Categories.vue')
   },
   {
     path: '/s/statistics/',
+    component: () => import ('../views/Statistics.vue')
+  },
+  {
+    path: '/s:i/statistics/:entity/',
     component: () => import ('../views/Statistics.vue')
   },
   {
@@ -41,6 +45,22 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/k/phases/:phase_id',
     component: () => import('../views/Lessons.vue')
+  },
+  {
+    path: '/t/courses',
+    component: () => import('../views/CoursesForCategories.vue')
+  },
+  {
+    path: '/k/courses',
+    component: () => import('../views/CoursesForLevels.vue')
+  },
+  {
+    path: '/profile',
+    component: () => import('../views/Profile.vue')
+  },
+  {
+    path: '/g/settings',
+    component: () => import('../views/Settings.vue')
   },
   {
     name: 'Login',

@@ -141,6 +141,11 @@ export default {
       return modal.present();
     },
     deletePhase(phaseId){
+
+      if(!confirm(this.$root.dict[this.$root.currentLocale]['delete_q'])){
+        return
+      }
+
       axios({
         method: "DELETE",
         url: `phases/${phaseId}/`,

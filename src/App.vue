@@ -11,7 +11,7 @@
               </ion-button>
             </ion-list-header>
             <ion-buttons>{{user?user.name:''}}
-
+              <ion-button href="/profile">{{dict[currentLocale]['profile_h']}}</ion-button>
               <ion-button href="/login">{{dict[currentLocale]['logout']}}</ion-button>
             </ion-buttons>
 
@@ -21,7 +21,7 @@
               <template v-if="!p.forOnlyAdmin || (user !== null && user.is_admin)">
 
                 <ion-item
-
+                    :style="`margin-left: ${32*p.level}px`"
                     @click="selectedIndex = i"
                     router-direction="root"
                     :router-link="p.url"
@@ -29,10 +29,28 @@
                     detail="false"
                     class="hydrated"
                     :class="{ selected: selectedIndex === i }"
+                    v-if="!p.forOnlyEM || user.bot.id === 0"
                 >
 
-                <ion-icon v-if="p.level === 0" slot="start" :ios="p.iosIcon" :md="p.mdIcon"></ion-icon>
+
+
+                <ion-icon slot="start" :ios="p.iosIcon" :md="p.mdIcon"></ion-icon>
                 <ion-label>{{ dict[currentLocale][p.title] }}</ion-label>
+                </ion-item>
+                <ion-item
+                    :style="`margin-left: ${32*p.level}px`"
+                    lines="none"
+                    detail="false"
+                    class="hydrated"
+                    @click="featureNotify"
+                    :class="{ selected: selectedIndex === i }"
+                    v-else
+                >
+
+
+
+                  <ion-icon slot="start" :ios="p.iosIcon" :md="p.mdIcon"></ion-icon>
+                  <ion-label>{{ dict[currentLocale][p.title] }}</ion-label>
                 </ion-item>
               </template>
 
@@ -54,7 +72,26 @@
 import { IonApp, IonContent, IonIcon, IonItem, IonLabel, IonList, IonListHeader, IonMenu, IonMenuToggle, IonRouterOutlet, IonSplitPane, toastController } from '@ionic/vue';
 import { defineComponent, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import {bookmarkOutline, bookmarkSharp, heartOutline, heartSharp, peopleOutline, peopleSharp, warningOutline, warningSharp, serverOutline, serverSharp, checkboxOutline, checkboxSharp, callOutline, callSharp, analyticsOutline, analyticsSharp } from 'ionicons/icons';
+import {
+  bookmarkOutline,
+  bookmarkSharp,
+  heartOutline,
+  heartSharp,
+  peopleOutline,
+  peopleSharp,
+  warningOutline,
+  warningSharp,
+  serverOutline,
+  serverSharp,
+  checkboxOutline,
+  checkboxSharp,
+  callOutline,
+  callSharp,
+  analyticsOutline,
+  analyticsSharp,
+  settingsOutline,
+  settingsSharp
+} from 'ionicons/icons';
 import axios from 'axios';
 import router from "@/router";
 import {dict} from '@/./dict.js'
@@ -67,8 +104,8 @@ addIcons({
   "arrow-back-outline": arrowBackOutline,
 });
 
-//axios.defaults.baseURL = 'http://localhost:5000/cp/';
-axios.defaults.baseURL = 'http://188.166.238.36:5000/cp/';
+axios.defaults.baseURL = 'http://localhost:5000/cp/';
+//axios.defaults.baseURL = 'http://188.166.238.36:5000/cp/';
 axios.interceptors.response.use(
     function (response) {
       return response;
@@ -125,25 +162,28 @@ export default defineComponent({
         iosIcon: peopleOutline,
         mdIcon: peopleSharp,
         forOnlyAdmin: true,
-        level: 0
+        level: 0,
+        forOnlyEM: false,
       },
       {
         section: 'k',
         title: 'kb_mi',
-        url: '/k/kb',
+        url: '/k/courses',
         iosIcon: serverOutline,
         mdIcon: serverSharp,
         forOnlyAdmin: true,
-        level: 0
+        level: 0,
+        forOnlyEM: true,
       },
       {
         section: 't',
         title: 'tests_mi',
-        url: '/t/categories',
+        url: '/t/courses',
         iosIcon: checkboxOutline,
         mdIcon: checkboxSharp,
         forOnlyAdmin: false,
-        level: 0
+        level: 0,
+        forOnlyEM: false,
       },
       {
         section: 'c',
@@ -152,7 +192,8 @@ export default defineComponent({
         iosIcon: callOutline,
         mdIcon: callSharp,
         forOnlyAdmin: true,
-        level: 0
+        level: 0,
+        forOnlyEM: false,
       },
       {
         section: 's',
@@ -161,44 +202,68 @@ export default defineComponent({
         iosIcon: analyticsOutline,
         mdIcon: analyticsSharp,
         forOnlyAdmin: true,
-        level: 0
-
+        level: 0,
+        forOnlyEM: true,
       },
-      /*{
-        section: 's',
+      {
+        section: 's0',
         title: 'stat_option_0',
-        url: '/s/statistics/clients',
+        url: '/s0/statistics/clients',
         iosIcon: analyticsOutline,
         mdIcon: analyticsSharp,
         forOnlyAdmin: true,
-        level: 1
-
+        level: 1,
+        forOnlyEM: true,
       },
       {
-        section: 's',
+        section: 's1',
         title: 'stat_option_1',
-        url: '/s/statistics/audience',
+        url: '/s1/statistics/audience',
         iosIcon: analyticsOutline,
         mdIcon: analyticsSharp,
         forOnlyAdmin: true,
-        level: 1
+        level: 1,
+        forOnlyEM: true,
 
       },
       {
-        section: 's',
+        section: 's2',
         title: 'stat_option_2',
-        url: '/s/statistics/tests',
+        url: '/s2/statistics/tests',
         iosIcon: analyticsOutline,
         mdIcon: analyticsSharp,
         forOnlyAdmin: true,
-        level: 1
+        level: 1,
+        forOnlyEM: true,
 
-      } */
+      },
+      {
+        section: 's3',
+        title: 'stat_option_3',
+        url: '/s3/statistics/bots',
+        iosIcon: analyticsOutline,
+        mdIcon: analyticsSharp,
+        forOnlyAdmin: true,
+        level: 1,
+        forOnlyEM: true,
+
+      },
+      {
+        section: 'g',
+        title: 'settings_mi',
+        url: '/g/settings',
+        iosIcon: settingsOutline,
+        mdIcon: settingsSharp,
+        forOnlyAdmin: true,
+        level: 0,
+        forOnlyEM: true,
+      },
     ];
 
     const path = window.location.pathname;
     if (path !== undefined) {
-      selectedIndex.value = appPages.findIndex(page => path.toLowerCase().startsWith('/'+page.section.toLowerCase()+'/'));
+      const selected = appPages.findIndex(page => path.toLowerCase().startsWith('/'+page.section.toLowerCase()+'/'));
+      selectedIndex.value = selected
     }
 
     const route = useRoute();
@@ -265,6 +330,14 @@ export default defineComponent({
             message: message,
             duration: 2000,
             color
+          })
+      return toast.present();
+    },
+    async featureNotify(){
+      const toast = await toastController
+          .create({
+            message: this.dict[this.currentLocale]['feature'],
+            duration: 2000,
           })
       return toast.present();
     },

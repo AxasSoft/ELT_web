@@ -86,20 +86,22 @@ export default {
     }
   },
   mounted() {
-
-    axios({
-      method: "GET",
-      url: 'levels/',
-      headers: {
-        "Authorization": `Token ${localStorage.getItem('token') || ''}`
-      }
-    }).then(
-        response => {
-          this.levels = response.data.data
-        }
-    )
+    this.init()
   },
   methods:{
+    init(){
+      axios({
+        method: "GET",
+        url: `courses/${this.$route.params.course_id}/levels/`,
+        headers: {
+          "Authorization": `Token ${localStorage.getItem('token') || ''}`
+        }
+      }).then(
+          response => {
+            this.levels = response.data.data
+          }
+      )
+    },
     async openModal(level, title, action) {
       const modal = await modalController
           .create({
@@ -114,31 +116,19 @@ export default {
           })
 
       modal.onDidDismiss()
-          .then((data) => {
-            if(data.data !== undefined){
-              const isNew = data.data.isNew
-              if(isNew){
-                this.levels.push(
-                    {
-                      id: data.data.id, name: data.data.name
-                    }
-                )
-              } else {
-
-                this.levels = this.levels.map(
-                    level => level.id === data.data.id?
-                        { id: data.data.id, name: data.data.name}
-                        : level
-                )
-
-              }
-            }
+          .then(() => {
+            this.init()
           }
           );
 
       return modal.present();
     },
     deleteLevel(levelId){
+
+      if(!confirm(this.$root.dict[this.$root.currentLocale]['delete_q'])){
+        return
+      }
+
       axios({
         method: "DELETE",
         url: `levels/${levelId}/`,

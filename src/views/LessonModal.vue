@@ -33,6 +33,12 @@
       <ion-label position="stacked">{{$root.dict[$root.currentLocale]['url_lbl']}}</ion-label>
       <ion-input v-model="affectedLesson.url"></ion-input>
     </ion-item>
+    <ion-item v-if="$root.$data.user !== null && $root.$data.user.bot.id === 0">
+      <ion-checkbox v-model="affectedLesson.sis">
+
+      </ion-checkbox>
+      <ion-label>{{$root.dict[$root.currentLocale]['sis']}}</ion-label>
+    </ion-item>
     <div><ion-button slot="end" @click="save">{{action}}</ion-button></div>
   </ion-content>
 </template>
@@ -47,7 +53,8 @@ import {
   IonInput,
   IonItem,
   IonLabel,
-  modalController
+  modalController,
+  IonCheckbox
 } from '@ionic/vue';
 import { defineComponent } from 'vue';
 import axios from "axios";
@@ -112,7 +119,8 @@ export default defineComponent({
         },
         data: {
           name: this.affectedLesson.name,
-          url: this.affectedLesson.url
+          url: this.affectedLesson.url,
+          sis: this.affectedLesson.sis
         },
       }:{
         method: 'PUT',
@@ -122,7 +130,8 @@ export default defineComponent({
         },
         data: {
           name: this.affectedLesson.name,
-          url: this.affectedLesson.url
+          url: this.affectedLesson.url,
+          sis: this.affectedLesson.sis
         }
       }).then(
           (response) => {
@@ -150,7 +159,7 @@ export default defineComponent({
       this.affectedLesson['phase_id'] = event.target.value
     },
   },
-  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel }
+  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel, IonCheckbox }
 });
 </script>
 

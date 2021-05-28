@@ -117,6 +117,11 @@ export default {
       return modal.present();
     },
     deleteLesson(lessonId){
+
+      if(!confirm(this.$root.dict[this.$root.currentLocale]['delete_q'])){
+        return
+      }
+
       axios({
         method: "DELETE",
         url: `lessons/${lessonId}/`,

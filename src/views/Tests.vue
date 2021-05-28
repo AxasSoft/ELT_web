@@ -196,6 +196,12 @@ import { defineComponent } from 'vue';
           return modal.present();
         },
         deleteTest(testId){
+
+          if(!confirm(this.$root.dict[this.$root.currentLocale]['delete_q'])){
+            return
+          }
+
+
           axios({
             method: "DELETE",
             url: `tests/${testId}/`,

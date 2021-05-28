@@ -93,7 +93,7 @@ export default defineComponent({
     init(){
       axios({
         method: "GET",
-        url: `categories/`,
+        url: `courses/${this.$route.params.course_id}/categories/`,
         headers: {
           "Authorization": `Token ${localStorage.getItem('token') || ''}`
         }
@@ -123,6 +123,11 @@ export default defineComponent({
       return modal.present();
     },
     deleteCategory(categoryId){
+
+      if(!confirm(this.$root.dict[this.$root.currentLocale]['delete_q'])){
+        return
+      }
+
       axios({
         method: "DELETE",
         url: `categories/${categoryId}/`,

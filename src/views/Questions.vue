@@ -174,6 +174,12 @@ export default {
       }
     },
     deleteQuestion(questionId){
+
+      if(!confirm(this.$root.dict[this.$root.currentLocale]['delete_q'])){
+        return
+      }
+
+
       axios({
         method: "DELETE",
         url: `questions/${questionId}/`,

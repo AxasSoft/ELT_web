@@ -31,6 +31,12 @@
       <ion-label position="stacked" >{{$root.dict[$root.currentLocale]['name_lbl']}}</ion-label>
       <ion-input v-model="affectedPhase.name"></ion-input>
     </ion-item>
+    <ion-item v-if="$root.$data.user !== null && $root.$data.user.bot.id === 0">
+      <ion-checkbox v-model="affectedPhase.sis">
+
+      </ion-checkbox>
+      <ion-label>{{$root.dict[$root.currentLocale]['sis']}}</ion-label>
+    </ion-item>
     <div><ion-button slot="end" @click="save">{{action}}</ion-button></div>
   </ion-content>
 </template>
@@ -47,7 +53,8 @@ import {
   IonLabel,
   modalController,
     IonSelect,
-    IonSelectOption
+    IonSelectOption,
+  IonCheckbox
 } from '@ionic/vue';
 import { defineComponent } from 'vue';
 import axios from "axios";
@@ -61,7 +68,8 @@ export default defineComponent({
       levels: [],
       affectedPhase: {
         id:null,
-        name: ''
+        name: '',
+        sis: true
       }
     }
   },
@@ -103,7 +111,8 @@ export default defineComponent({
           "Authorization": `Token ${localStorage.getItem('token') || ''}`
         },
         data: {
-          name: this.affectedPhase.name
+          name: this.affectedPhase.name,
+          sis: this.affectedPhase.sis
         },
       } : {
         method: 'PUT',
@@ -113,7 +122,8 @@ export default defineComponent({
         },
         data: {
           name: this.affectedPhase.name,
-          'level_id': this.affectedPhase.level_id
+          'level_id': this.affectedPhase.level_id,
+          sis: this.affectedPhase.sis
         }
       }).then(
           (response) => {
@@ -140,7 +150,7 @@ export default defineComponent({
       this.affectedPhase['level_id'] = event.target.value
     },
   },
-  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel,IonSelect, IonSelectOption }
+  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel,IonSelect, IonSelectOption, IonCheckbox }
 });
 </script>
 

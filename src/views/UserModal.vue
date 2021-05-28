@@ -16,6 +16,10 @@
       <ion-label position="stacked">{{$root.dict[$root.currentLocale]['login_lbl']}}</ion-label>
       <ion-input v-model="affectedUser.login"></ion-input>
     </ion-item>
+    <ion-item>
+      <ion-label position="stacked">{{$root.dict[$root.currentLocale]['email_lbl']}}</ion-label>
+      <ion-input v-model="affectedUser.email"></ion-input>
+    </ion-item>
     <ion-item v-if="affectedUser.id === null || !doNotChangePassword">
       <ion-label position="stacked">{{$root.dict[$root.currentLocale]['password_lbl']}}</ion-label>
       <ion-input type="password" v-model="affectedUser.password"></ion-input>
@@ -27,6 +31,22 @@
       </ion-checkbox>
       <ion-label>{{$root.dict[$root.currentLocale]['dontchangepassword']}}</ion-label>
     </ion-item>
+    <div v-if="$root.$data.user !== null && $root.$data.user.bot.id === 0">
+      <ion-checkbox v-model="botOwner">
+
+      </ion-checkbox>
+      <ion-label>{{$root.dict[$root.currentLocale]['bot_owner']}}</ion-label>
+      <div v-if="botOwner">
+        <ion-item>
+          <ion-label position="stacked">telegram id</ion-label>
+          <ion-input v-model="telegramId"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">{{$root.dict[$root.currentLocale]['name_lbl']}}</ion-label>
+          <ion-input v-model="bot.name"></ion-input>
+        </ion-item>
+      </div>
+    </div>
     <div><ion-button slot="end" @click="save">{{action}}</ion-button></div>
   </ion-content>
 </template>
@@ -42,7 +62,7 @@ import {
   IonItem,
   IonLabel,
   modalController,
-    IonCheckbox
+  IonCheckbox
 } from '@ionic/vue';
 import { defineComponent } from 'vue';
 import axios from "axios";
@@ -59,7 +79,12 @@ export default defineComponent({
         password: '',
         name: '',
       },
-      doNotChangePassword: false
+      telegramId: null,
+      doNotChangePassword: false,
+      botOwner: false,
+      bot:{
+        name: ''
+      }
     }
   },
   created() {
@@ -85,9 +110,28 @@ export default defineComponent({
         return
       }
 
-      if((this.user === null || this.affectedUser.name !== this.user.login) && this.stopList.includes(this.affectedUser.login)){
+      if((this.user === null || this.affectedUser.login !== this.user.login) && this.stopList.includes(this.affectedUser.login)){
         alert(this.$root.dict[this.$root.currentLocale]['duplicated_login'])
         return
+      }
+
+      if(this.affectedUser.email === ''){
+        alert(this.$root.dict[this.$root.currentLocale]['enter_email'])
+        return
+      }
+
+      const data = {
+            name: this.affectedUser.name,
+            login: this.affectedUser.login,
+            password: this.affectedUser.password,
+            email: this.affectedUser.email,
+            bot: this.botOwner? {
+              name: this.bot.name
+            }: null
+          }
+
+      if(this.botOwner){
+        data['telegram_id'] = this.telegramId
       }
 
       axios(this.affectedUser.id === null? {
@@ -96,11 +140,7 @@ export default defineComponent({
         headers: {
           "Authorization": `Token ${localStorage.getItem('token') || ''}`
         },
-        data: {
-          name: this.affectedUser.name,
-          login: this.affectedUser.login,
-          password: this.affectedUser.password
-        },
+        data: data
       }:{
         method: 'PUT',
         url: `users/${this.affectedUser.id}/`,
@@ -110,11 +150,13 @@ export default defineComponent({
         data: this.doNotChangePassword?
             {
               name: this.affectedUser.name,
-              login: this.affectedUser.login
+              login: this.affectedUser.login,
+              email: this.affectedUser.email,
             }:{
               name: this.affectedUser.name,
               login: this.affectedUser.login,
-              password: this.affectedUser.password
+              email: this.affectedUser.email,
+              password: this.affectedUser.password,
             }
       }).then(
           (response) => {

@@ -42,7 +42,11 @@
             <ion-label position="stacked">{{$root.dict[$root.currentLocale]['password_lbl']}}</ion-label>
             <ion-input v-model="user.password" type="password"></ion-input>
           </ion-item>
-          <div><ion-button slot="end" @click="login">{{$root.dict[$root.currentLocale]['login_btn']}}</ion-button></div>
+          <div>
+            <ion-button slot="end" @click="login">{{$root.dict[$root.currentLocale]['login_btn']}}</ion-button>
+            <ion-button slot="end" @click="openModal">{{$root.dict[$root.currentLocale]['reset_password_btn']}}</ion-button>
+          </div>
+
           </ion-list>
         </div>
       </div>
@@ -60,10 +64,12 @@ import {
   IonTitle,
   IonToolbar,
   IonButton,
-  IonInput
+  IonInput, modalController
 } from '@ionic/vue';
 import axios from "axios";
 import router from "@/router";
+
+import ResetPasswordModal from "@/views/ResetPasswordModal";
 
 
 export default {
@@ -92,6 +98,12 @@ export default {
   },
   methods:{
 
+    init(){
+      this.user = {
+      login: '',
+      password: ''
+    }
+    },
     login(){
       axios(
           {
@@ -105,7 +117,9 @@ export default {
             this.$root.$data.user = {
               login: response.data.data.login,
               name: response.data.data.name,
-              'is_admin': response.data.data.is_admin
+              'is_admin': response.data.data.is_admin,
+              'bot_owner': response.data.data['bot_owner'],
+              'bot': response.data.data.bot
             }
             router.push('/')
 
@@ -115,7 +129,21 @@ export default {
               this.$root.notify(this.$root.dict[this.$root.currentLocale]['incorrect_password'],'danger')
           }
       )
-    }
+    },
+    async openModal() {
+
+      const modal = await modalController
+          .create({
+            component: ResetPasswordModal,
+          })
+
+      modal.onDidDismiss()
+          .then(() => {
+            this.init()
+          });
+
+      return modal.present();
+    },
 
   }
 }

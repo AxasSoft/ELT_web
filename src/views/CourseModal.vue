@@ -8,15 +8,10 @@
     </ion-toolbar>
   </ion-header>
   <ion-content class="ion-padding">
+
     <ion-item>
       <ion-label position="stacked" >{{$root.dict[$root.currentLocale]['name_lbl']}}</ion-label>
-      <ion-input v-model="affectedLevel.name"></ion-input>
-    </ion-item>
-    <ion-item v-if="$root.$data.user !== null && $root.$data.user.bot.id === 0">
-      <ion-checkbox v-model="affectedLevel.sis">
-
-      </ion-checkbox>
-      <ion-label>{{$root.dict[$root.currentLocale]['sis']}}</ion-label>
+      <ion-input v-model="affectedCourse.name"></ion-input>
     </ion-item>
     <div><ion-button slot="end" @click="save">{{action}}</ion-button></div>
   </ion-content>
@@ -33,71 +28,69 @@ import {
   IonItem,
   IonLabel,
   modalController,
-    IonCheckbox
 } from '@ionic/vue';
 import { defineComponent } from 'vue';
 import axios from "axios";
 
 
 export default defineComponent({
-  name: 'LevelModal',
-  props: [ 'level','title', 'action', 'stopList'],
+  name: 'СщгкыуModal',
+  props: [ 'course','title', 'action', 'stopList'],
   data() {
     return {
-      affectedLevel: {
+      affectedCourse: {
         id:null,
         name: ''
       }
     }
   },
   created() {
-    if(this.level !== null){
-      this.affectedLevel = this.level
+    if(this.course !== null){
+      this.affectedCourse = {...this.course};
+
     }
   },
-  methods:{
+  methods: {
     dismissModal(data) {
-       modalController.dismiss(data);
-      },
-    save(){
-      if(this.affectedLevel.name === ''){
+      modalController.dismiss(data);
+    },
+    save() {
+      if (this.affectedCourse.name === '') {
         alert(this.$root.dict[this.$root.currentLocale]['enter_name'])
       }
 
-      if((this.level === null || this.affectedLevel.name !== this.level.name) && this.stopList.includes(this.affectedLevel.name)){
+      if ((this.course === null || this.affectedCourse.name !== this.course.name) && this.stopList.includes(this.affectedCourse.name)) {
         alert(this.$root.dict[this.$root.currentLocale]['duplicated_name'])
         return
       }
 
-      axios(this.affectedLevel.id === null? {
+      axios(this.affectedCourse.id === null ? {
         method: 'POST',
-        url: `courses/${this.$route.params.course_id}/levels/`,
+        url: `courses/`,
         headers: {
           "Authorization": `Token ${localStorage.getItem('token') || ''}`
         },
         data: {
-          name: this.affectedLevel.name,
-          sis: this.affectedLevel.sis
+          name: this.affectedCourse.name
         },
-      }:{
+      } : {
         method: 'PUT',
-        url: `levels/${this.affectedLevel.id}/`,
+        url: `courses/${this.affectedCourse.id}/`,
         headers: {
           "Authorization": `Token ${localStorage.getItem('token') || ''}`
         },
         data: {
-          name: this.affectedLevel.name,
-          sis: this.affectedLevel.sis
+          name: this.affectedCourse.name,
         }
       }).then(
           (response) => {
-            console.log('saved')
+            console.log('Saved');
             this.$root.notify(this.$root.dict[this.$root.currentLocale]['saved_ntf'])
             this.dismissModal(
                 {
-                  id: this.affectedLevel.id !== null?this.affectedLevel.id: response.data.data.id,
-                  name: this.affectedLevel.name,
-                  isNew: this.affectedLevel.id === null
+                  id: this.affectedCourse.id !== null ? this.affectedCourse.id : response.data.data.id,
+                  name: this.affectedCourse.name,
+                  isNew: this.affectedCourse.id === null
                 }
             );
           }
@@ -108,9 +101,9 @@ export default defineComponent({
           }
       )
 
-    }
     },
-  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel, IonCheckbox }
+  },
+  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel}
 });
 </script>
 

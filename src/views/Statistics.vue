@@ -20,7 +20,7 @@
 
       <div id="container">
         <div class="workspace">
-          <ion-segment v-model="selectedType" :value="1">
+          <ion-segment v-model="selectedType" :value="1" v-if="entity === null">
             <ion-segment-button :value='0'>
               <ion-label >{{$root.dict[$root.currentLocale]['stat_option_0']}}</ion-label>
             </ion-segment-button>
@@ -30,8 +30,11 @@
             <ion-segment-button :value='2'>
               <ion-label >{{$root.dict[$root.currentLocale]['stat_option_2']}}</ion-label>
             </ion-segment-button>
+            <ion-segment-button :value='3'>
+              <ion-label >{{$root.dict[$root.currentLocale]['stat_option_3']}}</ion-label>
+            </ion-segment-button>
           </ion-segment>
-          <template v-if="selectedType == 0">
+          <template v-if="(entity == null && selectedType == 0) || entity == 'clients'">
             <div class="panel">
               <ion-button
                   size="small"
@@ -43,6 +46,9 @@
             <div class="scrollable">
                <table>
             <tr>
+              <td>
+                {{$root.dict[$root.currentLocale]['bot_sh']}}
+              </td>
               <td>
                 {{$root.dict[$root.currentLocale]['stat_user_id']}}
               </td>
@@ -66,6 +72,7 @@
               </td>
             </tr>
             <tr v-for="(row, index) in users" :key="index">
+              <td>{{row.bot}}</td>
               <td >{{row.id}}</td>
               <td >{{row.nick}}</td>
               <td >{{row.name}}</td>
@@ -77,8 +84,7 @@
             </table>
             </div>
           </template>
-
-          <template v-if="selectedType == 1">
+          <template v-if="(entity == null && selectedType == 1) || entity == 'audience'">
             <div class="panel">
               <ion-button
                   size="small"
@@ -90,6 +96,9 @@
             <div class="scrollable">
             <table>
               <tr>
+                <td>
+                  {{$root.dict[$root.currentLocale]['bot_sh']}}
+                </td>
               <td >
                 {{$root.dict[$root.currentLocale]['stat_date']}}
               </td>
@@ -104,6 +113,7 @@
               </td>
             </tr>
               <tr v-for="(row, index) in dates" :key="index">
+                <td>{{row.bot}}</td>
               <td >{{prettyDate(row.date)}}</td>
               <td >{{row.active}}</td>
               <td >{{row.new}}</td>
@@ -112,8 +122,7 @@
             </table>
             </div>
           </template>
-
-          <template v-if="selectedType == 2">
+          <template v-if="(entity == null && selectedType == 2) || entity == 'tests'">
             <div class="panel">
               <ion-button
                   size="small"
@@ -125,6 +134,9 @@
             <div class="scrollable">
               <table>
               <tr>
+                <td>
+                  {{$root.dict[$root.currentLocale]['bot_sh']}}
+                </td>
               <td>
                 {{$root.dict[$root.currentLocale]['stat_categories']}}
               </td>
@@ -145,6 +157,7 @@
               </td>
             </tr>
               <tr v-for="(row, index) in tests" :key="index">
+                <td>{{row.bot}}</td>
               <td ><router-link :to="`/t/categories/${row.category_id}/`">{{row.category_name}}</router-link></td>
               <td ><router-link :to="`/t/tests/${row.id}/`">{{row.name}}</router-link></td>
               <td >{{prettyDate(row.created_at)}}</td>
@@ -155,7 +168,36 @@
             </table>
             </div>
           </template>
-
+          <template v-if="(entity == null && selectedType == 3) || entity == 'bots'">
+            <div class="panel">
+              <ion-button
+                  size="small"
+                  @click="exportData('bots')"
+              >
+                {{$root.dict[$root.currentLocale]['stat_export']}}
+              </ion-button>
+            </div>
+            <div class="scrollable">
+              <table>
+                <tr>
+                  <td>
+                    {{$root.dict[$root.currentLocale]['name_lbl']}}
+                  </td>
+                  <td >
+                    {{$root.dict[$root.currentLocale]['contacts_h']}}
+                  </td>
+                  <td>
+                    {{$root.dict[$root.currentLocale]['users_h']}}
+                  </td>
+                </tr>
+                <tr v-for="(row, index) in bots" :key="index">
+                  <td>{{row.name}}</td>
+                  <td >{{row.contacts}}</td>
+                  <td >{{row.users}}</td>
+                </tr>
+              </table>
+            </div>
+          </template>
         </div>
       </div>
     </ion-content>
@@ -195,6 +237,7 @@ export default {
       users: {},
       dates: {},
       tests: {},
+      bots: {},
       selectedType: 0
 
     }
@@ -238,6 +281,17 @@ export default {
             this.dates = response.data.data
           }
       );
+      axios({
+        method: "GET",
+        url: `statistics/bots/`,
+        headers: {
+          "Authorization": `Token ${localStorage.getItem('token') || ''}`
+        }
+      }).then(
+          response => {
+            this.bots = response.data.data
+          }
+      );
     },
     prettyDate(value){
       if(value === null){
@@ -273,6 +327,11 @@ export default {
             fileLink.click();
           }
       );
+    }
+  },
+  computed:{
+    entity(){
+      return this.$route.params.entity || null
     }
   }
 }

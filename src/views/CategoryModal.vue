@@ -17,6 +17,12 @@
       <ion-checkbox v-model="affectedCategory.visible"></ion-checkbox>
       <ion-label style="padding-left: 1.4rem">{{$root.dict[$root.currentLocale]['visible_lbl']}}</ion-label>
     </ion-item>
+    <ion-item v-if="$root.$data.user !== null && $root.$data.user.bot.id === 0">
+      <ion-checkbox v-model="affectedCategory.sis">
+
+      </ion-checkbox>
+      <ion-label>{{$root.dict[$root.currentLocale]['sis']}}</ion-label>
+    </ion-item>
     <div><ion-button slot="end" @click="save">{{action}}</ion-button></div>
   </ion-content>
 </template>
@@ -70,22 +76,25 @@ export default defineComponent({
         return
       }
 
+
+
       const request = {
-        url: `categories/`,
         headers: {
           "Authorization": `Token ${localStorage.getItem('token') || ''}`
         },
         data: {
           name: this.affectedCategory.name,
-          visible: this.affectedCategory.visible
+          visible: this.affectedCategory.visible,
+          sis: this.affectedCategory.sis
         }
       }
 
       if(this.affectedCategory.id === null){
         request.method =  'POST';
+        request.url = `courses/${this.$route.params.course_id}/categories/`;
       } else {
         request.method = 'PUT';
-        request.url +=  `${this.affectedCategory.id}/`;
+        request.url =  `categories/${this.affectedCategory.id}/`;
       }
 
       console.log(request)
