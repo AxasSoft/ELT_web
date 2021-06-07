@@ -20,6 +20,7 @@
 
       <div id="container">
         <div class="workspace">
+
           <div v-if="$root.user !== null && $root.user.is_admin" class="panel">
             <ion-button size="small" @click="openModal(null,$root.dict[$root.currentLocale]['category_h'], $root.dict[$root.currentLocale]['save'])">
               {{$root.dict[$root.currentLocale]['add_category']}}
@@ -28,6 +29,7 @@
               {{reorder? $root.dict[$root.currentLocale]['save_order']:$root.dict[$root.currentLocale]['change_order'] }}
             </ion-button>
           </div>
+          <div class="scrollable">
           <ion-reorder-group @ionItemReorder="doReorder($event)" :disabled="!reorder">
 
             <ion-item v-for="category in categories" :key="category.id">
@@ -43,6 +45,7 @@
 
           </ion-reorder-group>
         </div>
+      </div>
       </div>
     </ion-content>
   </ion-page>

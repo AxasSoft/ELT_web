@@ -20,6 +20,7 @@
 
       <div id="container">
         <div class="workspace">
+
           <div class="panel">
             <ion-button
                 size="small"
@@ -31,6 +32,7 @@
               {{reorder? $root.dict[$root.currentLocale]['save_order']:$root.dict[$root.currentLocale]['change_order'] }}
             </ion-button>
           </div>
+          <div class="scrollable">
           <ion-reorder-group @ionItemReorder="doReorder($event)" :disabled="!reorder">
             <ion-item v-for="phase in phases" :key="phase.id">
               <ion-label>{{phase.name}}</ion-label>
@@ -46,6 +48,7 @@
             </ion-item>
           </ion-reorder-group>
         </div>
+      </div>
       </div>
     </ion-content>
   </ion-page>

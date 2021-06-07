@@ -24,7 +24,7 @@
       <ion-label position="stacked">{{$root.dict[$root.currentLocale]['password_lbl']}}</ion-label>
       <ion-input type="password" v-model="affectedUser.password"></ion-input>
     </ion-item>
-    <ion-item v-if="affectedUser.id!==null">
+    <ion-item v-if="affectedUser.id!==null" class="check-item">
       <ion-checkbox
           v-model="doNotChangePassword"
       >
@@ -32,20 +32,24 @@
       <ion-label>{{$root.dict[$root.currentLocale]['dontchangepassword']}}</ion-label>
     </ion-item>
     <div v-if="$root.$data.user !== null && $root.$data.user.bot.id === 0">
-      <ion-checkbox v-model="botOwner">
-
-      </ion-checkbox>
-      <ion-label>{{$root.dict[$root.currentLocale]['bot_owner']}}</ion-label>
-      <div v-if="botOwner">
+      <ion-item  class="check-item">
+        <ion-checkbox v-model="botOwner"></ion-checkbox>
+        <ion-label>{{$root.dict[$root.currentLocale]['bot_owner']}}</ion-label>
+      </ion-item>
+      <template v-if="botOwner">
         <ion-item>
           <ion-label position="stacked">telegram id</ion-label>
-          <ion-input v-model="telegramId"></ion-input>
+          <ion-input v-model.number="telegramId"></ion-input>
         </ion-item>
         <ion-item>
           <ion-label position="stacked">{{$root.dict[$root.currentLocale]['name_lbl']}}</ion-label>
           <ion-input v-model="bot.name"></ion-input>
         </ion-item>
-      </div>
+        <ion-item class="check-item">
+          <ion-checkbox v-model="bot.paid"></ion-checkbox>
+          <ion-label>{{$root.dict[$root.currentLocale]['bot_paid']}}</ion-label>
+        </ion-item>
+      </template>
     </div>
     <div><ion-button slot="end" @click="save">{{action}}</ion-button></div>
   </ion-content>
@@ -78,19 +82,53 @@ export default defineComponent({
         login: '',
         password: '',
         name: '',
+        bot: null,
+        email: ''
       },
       telegramId: null,
       doNotChangePassword: false,
       botOwner: false,
       bot:{
-        name: ''
-      }
+        name: '',
+        paid: false
+      },
+      users: []
     }
   },
   created() {
+
+    console.log(this.user)
+
     if(this.user !== null){
-      this.affectedUser = {...this.user, password: ''}
+      this.affectedUser = {
+        id: this.user.id,
+        login: this.user.login,
+        password: '',
+        name: this.user.name,
+        email: this.user.email
+      }
+      this.botOwner = this.user['bot_owner']
+      this.bot = this.user.bot || {
+          name: '',
+          paid: false
+      }
+      this.telegramId = +this.user['telegram_id']
     }
+
+
+      axios({
+        method: "GET",
+        url: 'emails/',
+        headers: {
+          "Authorization": `Token ${localStorage.getItem('token') || ''}`
+        }
+      }).then(
+          response => {
+            this.users = response.data.data
+          }
+      );
+
+
   },
   methods:{
     dismissModal(data) {
@@ -110,23 +148,45 @@ export default defineComponent({
         return
       }
 
-      if((this.user === null || this.affectedUser.login !== this.user.login) && this.stopList.includes(this.affectedUser.login)){
+      if(this.affectedUser.email === ''){
+        alert(this.$root.dict[this.$root.currentLocale]['enter_email'])
+        return
+      }
+
+      let duplicatedLogin = false;
+      let duplicatedEmail = false;
+
+      for (const user of this.users){
+        if(user.id != this.affectedUser.id){
+          if(user.email == this.affectedUser.email){
+            duplicatedEmail = true;
+          }
+          if(user.login == this.affectedUser.login){
+            duplicatedLogin = true;
+          }
+          if(duplicatedEmail && duplicatedLogin){
+            break;
+          }
+        }
+      }
+
+      if(duplicatedLogin){
         alert(this.$root.dict[this.$root.currentLocale]['duplicated_login'])
         return
       }
 
-      if(this.affectedUser.email === ''){
-        alert(this.$root.dict[this.$root.currentLocale]['enter_email'])
+      if(duplicatedEmail){
+        alert(this.$root.dict[this.$root.currentLocale]['duplicated_email'])
         return
       }
 
       const data = {
             name: this.affectedUser.name,
             login: this.affectedUser.login,
-            password: this.affectedUser.password,
             email: this.affectedUser.email,
             bot: this.botOwner? {
-              name: this.bot.name
+              name: this.bot.name,
+              paid: this.bot.paid
             }: null
           }
 
@@ -140,24 +200,14 @@ export default defineComponent({
         headers: {
           "Authorization": `Token ${localStorage.getItem('token') || ''}`
         },
-        data: data
+        data: {...data,password: this.affectedUser.password}
       }:{
         method: 'PUT',
         url: `users/${this.affectedUser.id}/`,
         headers: {
           "Authorization": `Token ${localStorage.getItem('token') || ''}`
         },
-        data: this.doNotChangePassword?
-            {
-              name: this.affectedUser.name,
-              login: this.affectedUser.login,
-              email: this.affectedUser.email,
-            }:{
-              name: this.affectedUser.name,
-              login: this.affectedUser.login,
-              email: this.affectedUser.email,
-              password: this.affectedUser.password,
-            }
+        data: this.doNotChangePassword? data:{...data,password: this.affectedUser.password}
       }).then(
           (response) => {
             this.$root.notify(this.$root.dict[this.$root.currentLocale]['saved_ntf'])

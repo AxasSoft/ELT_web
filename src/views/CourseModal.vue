@@ -13,6 +13,11 @@
       <ion-label position="stacked" >{{$root.dict[$root.currentLocale]['name_lbl']}}</ion-label>
       <ion-input v-model="affectedCourse.name"></ion-input>
     </ion-item>
+    <ion-item  class="check-item">
+
+      <ion-checkbox v-model="affectedCourse.visible" ></ion-checkbox>
+      <ion-label style="padding-left: 1.4rem">{{$root.dict[$root.currentLocale]['visible_m_lbl']}}</ion-label>
+    </ion-item>
     <div><ion-button slot="end" @click="save">{{action}}</ion-button></div>
   </ion-content>
 </template>
@@ -28,26 +33,30 @@ import {
   IonItem,
   IonLabel,
   modalController,
+    IonCheckbox,
 } from '@ionic/vue';
 import { defineComponent } from 'vue';
 import axios from "axios";
 
 
 export default defineComponent({
-  name: 'СщгкыуModal',
+  name: 'CourseModal',
   props: [ 'course','title', 'action', 'stopList'],
   data() {
     return {
       affectedCourse: {
         id:null,
-        name: ''
+        name: '',
+        visible: true
       }
     }
   },
   created() {
     if(this.course !== null){
       this.affectedCourse = {...this.course};
-
+      if(this.affectedCourse.visible === null){
+        this.affectedCourse.visible = true
+      }
     }
   },
   methods: {
@@ -71,7 +80,8 @@ export default defineComponent({
           "Authorization": `Token ${localStorage.getItem('token') || ''}`
         },
         data: {
-          name: this.affectedCourse.name
+          name: this.affectedCourse.name,
+          visible: this.affectedCourse.visible,
         },
       } : {
         method: 'PUT',
@@ -81,6 +91,7 @@ export default defineComponent({
         },
         data: {
           name: this.affectedCourse.name,
+          visible: this.affectedCourse.visible,
         }
       }).then(
           (response) => {
@@ -103,7 +114,7 @@ export default defineComponent({
 
     },
   },
-  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel}
+  components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonInput, IonItem,IonLabel, IonCheckbox}
 });
 </script>
 

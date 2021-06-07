@@ -31,6 +31,7 @@
               {{reorder? $root.dict[$root.currentLocale]['save_order']:$root.dict[$root.currentLocale]['change_order'] }}
             </ion-button>
           </div>
+          <div class="scrollable">
           <ion-reorder-group @ionItemReorder="doReorder($event)" :disabled="!reorder">
             <ion-item v-for="level in levels" :key="level.id">
               <ion-label>{{level.name}}</ion-label>
@@ -41,6 +42,7 @@
             </ion-item>
           </ion-reorder-group>
         </div>
+      </div>
       </div>
     </ion-content>
   </ion-page>

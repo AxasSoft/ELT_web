@@ -20,7 +20,10 @@
 
       <div id="container">
         <div class="workspace">
-          <div class="panel"><ion-button size="small" @click="openModal(null,$root.dict[$root.currentLocale]['user_h'],$root.dict[$root.currentLocale]['save'])">{{$root.dict[$root.currentLocale]['add_user_btn']}}</ion-button></div>
+          <div class="panel">
+            <ion-button size="small" @click="openModal(null,$root.dict[$root.currentLocale]['user_h'],$root.dict[$root.currentLocale]['save'])">{{$root.dict[$root.currentLocale]['add_user_btn']}}</ion-button>
+          </div>
+          <div class="scrollable">
           <ion-list>
             <ion-item>
               <ion-label>
@@ -42,6 +45,7 @@
               </ion-label>
             </ion-item>
           </ion-list>
+          </div>
         </div>
       </div>
     </ion-content>

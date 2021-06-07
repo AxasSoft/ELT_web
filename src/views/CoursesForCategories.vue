@@ -21,7 +21,7 @@
   <div id="container">
     <div class="workspace">
       <div class="panel">
-        <template v-if="$root.$data.user !== null && $root.$data.user.is_admin">
+        <template v-if="$root.$data.user !== null && $root.$data.user.is_admin && $root.$data.user.bot.id === 0">
         <ion-button
             size="small"
             @click="openModal(
@@ -32,13 +32,17 @@
         >
           {{$root.dict[$root.currentLocale]['add_course_btn']}}
         </ion-button>
+          <ion-button size="small" @click="toggleReorder">
+            {{reorder? $root.dict[$root.currentLocale]['save_order']:$root.dict[$root.currentLocale]['change_order'] }}
+          </ion-button>
         </template>
       </div>
-      <div>
+      <div class="scrollable">
+        <ion-reorder-group @ionItemReorder="doReorder($event)" :disabled="!reorder">
         <ion-item v-for="course in courses" :key="course.id">
           <ion-label>{{course.name}}</ion-label>
           <ion-button slot="end" :href="'/t/courses/'+course.id+'/categories/'">{{$root.dict[$root.currentLocale]['categories_lbl']}}</ion-button>
-          <template v-if="$root.$data.user !== null && $root.$data.user.is_admin">
+          <template v-if="$root.$data.user !== null && $root.$data.user.is_admin && $root.$data.user.bot.id === 0">
           <ion-button
               slot="end"
               @click="openModal(
@@ -49,8 +53,12 @@
           >
             {{$root.dict[$root.currentLocale]['edit']}}
           </ion-button>
+            <ion-button color="danger" slot="end" @click="deleteCourse(course.id)">{{$root.dict[$root.currentLocale]['delete']}}</ion-button>
+            <ion-reorder slot="end"></ion-reorder>
           </template>
+
         </ion-item>
+        </ion-reorder-group>
       </div>
     </div>
   </div>
@@ -85,7 +93,8 @@ export default {
   },
   data(){
     return {
-      courses: []
+      courses: [],
+      reorder: false
     }
   },
   mounted() {
@@ -129,6 +138,67 @@ export default {
           );
 
       return modal.present();
+    },
+    doReorder(event) {
+      // Before complete is called with the items they will remain in the
+      // order before the drag
+      console.log('Before complete');
+
+      this.courses = event.detail.complete(this.courses);
+
+      // After complete is called the items will be in the new order
+      console.log('After complete');
+    },
+    toggleReorder(){
+      this.reorder = !this.reorder;
+      if(!this.reorder){
+        console.log('Saved');
+        axios({
+              method: 'POST',
+              url: `courses/order/`,
+              headers: {
+                "Authorization": `Token ${localStorage.getItem('token') || ''}`
+              },
+              data: {
+                'order':this.courses.map(value => value.id)
+              }
+            }
+        ).then(
+            () => {
+              this.$root.notify(this.$root.dict[this.$root.currentLocale]['saved_ntf'])
+            }
+        ).catch(
+            error => {
+              console.error(error);
+              this.$root.notify(this.$root.dict[this.$root.currentLocale]['error_ntf'])
+            }
+        )
+      }
+    },
+    deleteCourse(courseId){
+
+      if(!confirm(this.$root.dict[this.$root.currentLocale]['delete_q'])){
+        return
+      }
+
+      axios({
+        method: "DELETE",
+        url: `courses/${courseId}/`,
+        headers: {
+          "Authorization": `Token ${localStorage.getItem('token') || ''}`
+        }
+      }).then(
+          () => {
+            console.log('Deleted');
+            this.$root.notify(this.$root.dict[this.$root.currentLocale]['deleted_ntf'])
+            this.init()
+          }
+      ).catch(
+          error => {
+            console.error(error);
+            this.$root.notify(this.$root.dict[this.$root.currentLocale]['error_ntf'])
+          }
+      )
     },
   }
 }

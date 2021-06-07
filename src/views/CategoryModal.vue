@@ -12,12 +12,12 @@
       <ion-label position="stacked">{{$root.dict[$root.currentLocale]['name_lbl']}}</ion-label>
       <ion-input v-model="affectedCategory.name"></ion-input>
     </ion-item>
-    <ion-item>
+    <ion-item  class="check-item">
 
-      <ion-checkbox v-model="affectedCategory.visible"></ion-checkbox>
+      <ion-checkbox v-model="affectedCategory.visible" ></ion-checkbox>
       <ion-label style="padding-left: 1.4rem">{{$root.dict[$root.currentLocale]['visible_lbl']}}</ion-label>
     </ion-item>
-    <ion-item v-if="$root.$data.user !== null && $root.$data.user.bot.id === 0">
+    <ion-item v-if="$root.$data.user !== null && $root.$data.user.bot.id === 0"  class="check-item">
       <ion-checkbox v-model="affectedCategory.sis">
 
       </ion-checkbox>
@@ -52,7 +52,8 @@ export default defineComponent({
       affectedCategory: {
         id:null,
         name: '',
-        visible: false
+        visible: false,
+        sis: false
       }
     }
   },

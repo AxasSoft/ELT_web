@@ -20,6 +20,7 @@
 
       <div id="container">
         <div class="workspace">
+          <div class="scrollable">
           <section v-for="group in settings" :key="group.id">
             <h1>{{$root.currentLocale == "en"?group.name_en:group.name_ru}}</h1>
             <ion-item v-for="setting in group.settings" :key="setting.id">
@@ -29,6 +30,7 @@
           </section>
           <ion-button @click="save">{{$root.dict[$root.currentLocale]['save']}}</ion-button>
         </div>
+      </div>
       </div>
     </ion-content>
   </ion-page>

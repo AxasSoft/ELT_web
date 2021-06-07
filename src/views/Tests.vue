@@ -31,6 +31,7 @@
                 {{reorder? $root.dict[$root.currentLocale]['save_order']:$root.dict[$root.currentLocale]['change_order'] }}
               </ion-button>
             </div>
+            <div class="scrollable">
             <ion-segment v-model="selectedType" :value="-1">
               <ion-segment-button :value='-1'>
                 <ion-label>{{$root.dict[$root.currentLocale]['option_all']}}</ion-label>
@@ -74,6 +75,7 @@
                 <ion-reorder slot="end"></ion-reorder>
               </ion-item>
             </ion-reorder-group>
+            </div>
           </div>
         </div>
       </ion-content>

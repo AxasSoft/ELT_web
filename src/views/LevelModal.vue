@@ -12,7 +12,7 @@
       <ion-label position="stacked" >{{$root.dict[$root.currentLocale]['name_lbl']}}</ion-label>
       <ion-input v-model="affectedLevel.name"></ion-input>
     </ion-item>
-    <ion-item v-if="$root.$data.user !== null && $root.$data.user.bot.id === 0">
+    <ion-item v-if="$root.$data.user !== null && $root.$data.user.bot.id === 0"  class="check-item">
       <ion-checkbox v-model="affectedLevel.sis">
 
       </ion-checkbox>

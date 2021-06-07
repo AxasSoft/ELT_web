@@ -33,7 +33,7 @@
       <ion-label position="stacked">{{$root.dict[$root.currentLocale]['url_lbl']}}</ion-label>
       <ion-input v-model="affectedLesson.url"></ion-input>
     </ion-item>
-    <ion-item v-if="$root.$data.user !== null && $root.$data.user.bot.id === 0">
+    <ion-item v-if="$root.$data.user !== null && $root.$data.user.bot.id === 0" class="check-item">
       <ion-checkbox v-model="affectedLesson.sis">
 
       </ion-checkbox>

@@ -29,7 +29,7 @@
       <ion-label position="stacked">{{$root.dict[$root.currentLocale]['name_lbl']}}</ion-label>
       <ion-input v-model="affectedTest.name"></ion-input>
     </ion-item>
-    <ion-item v-if="$root.$data.user !== null && $root.$data.user.bot.id === 0">
+    <ion-item v-if="$root.$data.user !== null && $root.$data.user.bot.id === 0" class="check-item">
       <ion-checkbox v-model="affectedTest.sis">
 
       </ion-checkbox>
@@ -67,7 +67,8 @@ export default defineComponent({
         id:null,
         name: '',
         url: '',
-        'category_id': +this.category
+        'category_id': +this.category,
+        sis: true
       },
       categories: []
     }

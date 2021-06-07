@@ -20,7 +20,9 @@
 
       <div id="container">
         <div class="workspace">
+
           <div class="panel">
+            <div class="scrollable">
             <ion-button
                 size="small"
                 @click="openOAQModal(null,$root.dict[$root.currentLocale]['question_h'],$root.dict[$root.currentLocale]['save'])"
@@ -52,6 +54,7 @@
             </ion-item>
           </ion-reorder-group>
         </div>
+      </div>
       </div>
     </ion-content>
   </ion-page>

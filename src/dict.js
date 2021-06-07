@@ -78,6 +78,7 @@ const dict = {
             'enter_correct_answer': 'Введите правильный ответ',
             'duplicated_name': 'Повторяющееся название',
             'duplicated_login': 'Повторяющийся логин',
+            'duplicated_email': 'Повторяющийся email',
             'duplicated_text': 'Повторяющаяся формулировка',
             'add_answer': 'Добавьте ответ',
             'incorrect_password': 'Неверный пароль',
@@ -87,6 +88,7 @@ const dict = {
             'save_order':'Сохранить порядок',
             'change_order': 'Изменить порядок',
             'visible_lbl': 'Видимая',
+            'visible_m_lbl': 'Видимый',
             'ok_btn': 'Подтвердить',
             'cancel_btn': 'Отменить',
             'description_lbl': 'Описание',
@@ -135,7 +137,8 @@ const dict = {
             'reset_password_a':'Изменить пароль',
             'reset_password_btn': 'Я не помню пароль',
             'stat_option_3': 'Боты',
-            'feature': 'Данная функция находится в разработке'
+            'feature': 'Данная функция находится в разработке',
+            'bot_paid': 'Оплачен'
         },
         'en': {
             'change_qs_1_btn': 'for moderation',
@@ -216,6 +219,7 @@ const dict = {
             'enter_correct_answer': 'Enter correct answer',
             'duplicated_name': 'Duplicated name',
             'duplicated_login': 'Duplicated login',
+            'duplicated_email': 'Duplicated email',
             'duplicated_text': 'Duplicated text',
             'add_answer': 'Add answer',
             'incorrect_password': 'Incorrect password',
@@ -225,6 +229,7 @@ const dict = {
             'save_order':'Save order',
             'change_order': 'Change order',
             'visible_lbl': 'Visible',
+            'visible_m_lbl': 'Visible',
             'ok_btn': 'Ok',
             'cancel_btn': 'Cancel',
             'description_lbl': 'Description',
@@ -272,7 +277,8 @@ const dict = {
             'reset_password_a':'Change password',
             'reset_password_btn': 'I do not remember the password',
             'stat_option_3': 'Bots',
-            'feature': 'This feature is under development.'
+            'feature': 'This feature is under development.',
+            'bot_paid': 'Paid',
         }
     };
 
